@@ -185,7 +185,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   font-weight: bold;
   color: #374151;
 }

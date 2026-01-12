@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from "vue-router";
+import axios from "axios";
 
 import product1 from "../Views/products/product1.vue";
 import product2 from "../Views/products/product2.vue";
@@ -40,6 +41,7 @@ import atmmockup from "../components/mockup/atmmockup.vue";
 import testhome from "../Views/Homepage/testhome.vue";
 import allbox from "../Views/Aboutus/companystructure/allbox.vue";
 import testinfocomponent from "../Views/products/procomponent/testinfocomponent.vue";
+
 /** =========================
  *  Path Masking (Base64 URL-safe)
  *  ========================= */
@@ -62,6 +64,37 @@ function base64UrlDecode(b64url: string): string {
 }
 
 const TOKEN_PREFIX = "/r/";
+
+/** =========================
+ *  ✅ Visitors Tracking helpers
+ *  ========================= */
+function getVisitorSessionId() {
+  const key = "visitor_session_id";
+  let sid = localStorage.getItem(key);
+  if (!sid) {
+    sid = (crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    localStorage.setItem(key, sid);
+  }
+  return sid;
+}
+
+async function trackVisitor(page_url: string, token?: string) {
+  try {
+    if (token) {
+      const dedupeKey = `visitor_tracked_${token}`;
+      if (sessionStorage.getItem(dedupeKey)) return;
+      sessionStorage.setItem(dedupeKey, "1");
+    }
+
+    const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+    const session_id = getVisitorSessionId();
+
+    await axios.post(`${base}/api/visitors/track`, { page_url, session_id }, { timeout: 5000 });
+  } catch (e: any) {
+    console.debug("visitor track failed:", e?.message || e);
+  }
+}
+
 
 const routes: RouteRecordRaw[] = [
   {
@@ -290,17 +323,23 @@ const router = createRouter({
   routes,
 });
 
-/** ✅ เปิดลิงก์แบบ #/r/<token> -> decode -> ไป path จริง */
-router.beforeEach((to) => {
+/** ✅ เปิดลิงก์แบบ #/r/<token> -> decode -> ไป path จริง + ✅ ยิง visitors API */
+router.beforeEach(async (to) => {
   if (to.path.startsWith(TOKEN_PREFIX) && typeof to.params.token === "string") {
+    const token = to.params.token;
+
+    // ✅ ยิง visitors ตอนเข้าลิงก์ /r/<token>
+    await trackVisitor(window.location.href, token);
+
     try {
-      const realFullPath = base64UrlDecode(to.params.token);
+      const realFullPath = base64UrlDecode(token);
       return { path: realFullPath, replace: true };
     } catch {
       return { path: "/", replace: true };
     }
   }
 });
+
 
 /** ✅ เข้า route จริงแล้ว -> เปลี่ยน address bar เป็น #/r/<token> (ไม่ trigger navigation) */
 router.afterEach((to) => {
@@ -316,7 +355,6 @@ router.afterEach((to) => {
   const newUrl = `${window.location.pathname}${window.location.search}${maskedHash}`;
   window.history.replaceState(window.history.state, "", newUrl);
 });
-
 
 // router/index.ts
 declare global {
@@ -343,4 +381,15 @@ router.afterEach((to) => {
 router.isReady().then(() => {
   trackPageView(router.currentRoute.value.fullPath);
 });
+
+router.isReady().then(() => {
+  // ถ้าเปิดมาด้วย #/r/<token> ให้ยิงอีกชั้น (กันหลุด)
+  const h = window.location.hash || "";
+  if (h.startsWith(`#${TOKEN_PREFIX}`)) {
+    const token = h.slice(`#${TOKEN_PREFIX}`.length);
+    trackVisitor(window.location.href, token);
+  }
+});
+
+
 export default router;
