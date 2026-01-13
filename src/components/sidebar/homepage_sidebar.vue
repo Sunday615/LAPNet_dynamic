@@ -40,12 +40,34 @@
           </div>
 
           <ul v-if="openKey === 'product'" class="sidebar-subnav">
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-inquiry')">ກວດຍອດເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-cash-withdraw')">ຖອນເງິນສົດຂ້າມທະນາຄານຜ່ານຕູ້ ATM</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-transfer')">ໂອນເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/mobile-transfer')">ໂອນເງິນຂ້າມທະນາຄານເທິງມືຖື</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/qr-payment')">ຊຳລະຂ້າມທະນາຄານຜ່ານ LAPNet</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/crossborder')">ຊຳລະຂ້າມແດນຜ່ານ QR CODE </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/allproduct')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-table-cells-large"></i></span>
+              <span>ຜະລິດຕະພັນ ແລະ ການບໍລິການ ທັງໝົດ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-inquiry')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span>
+              <span>ກວດຍອດເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-cash-withdraw')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-money-bill-transfer"></i></span>
+              <span>ຖອນເງິນສົດຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-transfer')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
+              <span>ໂອນເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/mobile-transfer')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-mobile-screen"></i></span>
+              <span>ໂອນເງິນຂ້າມທະນາຄານເທິງມືຖື</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/qr-payment')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-money-bill-wave"></i></span>
+              <span>ຊຳລະຂ້າມທະນາຄານຜ່ານ LAPNet</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/products_service/crossborder')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span>
+              <span>ຊຳລະຂ້າມແດນຜ່ານ QR CODE</span>
+            </li>
           </ul>
         </li>
 
@@ -58,9 +80,18 @@
           </div>
 
           <ul v-if="openKey === 'member'" class="sidebar-subnav">
-            <li class="sidebar-subitem" @click.stop="goTo('/member/membercardATM')">ສະມາຊິກລະບົບບັດທະນາຄານຮ່ວມກັນ</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/member/mobile_banking')">ສະມາຊິກລະບົບຊຳລະຂ້າມທະນາຄານເທິງມືຖື</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/member/crossborder')">ສະມາຊິກລະບົບຊຳລະຂ້າມແດນຜ່ານ QR Code </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/member/membercardATM')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-credit-card"></i></span>
+              <span>ສະມາຊິກລະບົບບັດທະນາຄານຮ່ວມກັນ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/member/mobile_banking')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span>
+              <span>ສະມາຊິກລະບົບຊຳລະຂ້າມທະນາຄານເທິງມືຖື</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/member/crossborder')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span>
+              <span>ສະມາຊິກລະບົບຊຳລະຂ້າມແດນຜ່ານ QR Code</span>
+            </li>
           </ul>
         </li>
 
@@ -83,11 +114,26 @@
           </div>
 
           <ul v-if="openKey === 'about'" class="sidebar-subnav">
-            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/vision')">ວິໄສທັດ ແລະ ພາລະກິດ</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/role')">ພາລະບົດບາດ</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/history')">ຄວາມເປັນມາ</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/board_director')">ສະພາບໍລິຫານ</li>
-            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/companystructureimage')">ໂຄງຮ່າງການຈັດຕັ້ງ</li>
+            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/vision')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-lightbulb"></i></span>
+              <span>ວິໄສທັດ ແລະ ພາລະກິດ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/role')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-list-check"></i></span>
+              <span>ພາລະບົດບາດ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/history')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-timeline"></i></span>
+              <span>ຄວາມເປັນມາ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/board_director')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-users-between-lines"></i></span>
+              <span>ສະພາບໍລິຫານ</span>
+            </li>
+            <li class="sidebar-subitem" @click.stop="goTo('/aboutus/companystructureimage')">
+              <span class="subicon" aria-hidden="true"><i class="fa-solid fa-sitemap"></i></span>
+              <span>ໂຄງຮ່າງການຈັດຕັ້ງ</span>
+            </li>
           </ul>
         </li>
 
@@ -98,7 +144,6 @@
       </ul>
 
       <footer class="sidebar-footer">
-        <!-- ✅ Separate containers (NOT merged) -->
         <div class="footerRow">
           <!-- Help Center container -->
           <div class="status-pill" @click="goTo('/contactus')">
@@ -109,7 +154,7 @@
             </div>
           </div>
 
-          <!-- Viewer container (new) -->
+          <!-- Viewer container -->
           <div class="viewerContainer" ref="viewerContainerEl">
             <button
               ref="viewerBtnEl"
@@ -121,7 +166,6 @@
               <i class="fa-solid fa-eye"></i>
             </button>
 
-            <!-- ✅ Visitor overlay (glass) -->
             <div ref="viewerPopoverEl" class="viewerPopover" aria-hidden="true" @click.stop>
               <div class="viewerPopoverInner">
                 <div class="viewerTop">
@@ -227,7 +271,6 @@ const loadVisitor = async () => {
     viewerWeek.value = week;
   } catch (e) {
     console.error("Fetch visitor failed:", e);
-    // keep previous values on error
   }
 };
 
@@ -270,11 +313,11 @@ const playClose = () => {
   gsap.to(backdropEl.value, { duration: 0.3, opacity: 0, ease: "power2.inOut" });
 
   openKey.value = null;
-  viewerOpen.value = false; // ✅ close visitor overlay when sidebar closes
+  viewerOpen.value = false;
 };
 
 const emitClose = () => {
-  viewerOpen.value = false; // ✅ close overlay too
+  viewerOpen.value = false;
   emit("update:modelValue", false);
 };
 
@@ -291,10 +334,8 @@ onMounted(async () => {
   initPosition();
   await nextTick();
 
-  // ✅ load visitor once
   await loadVisitor();
 
-  // init viewer popover hidden
   if (viewerPopoverEl.value) {
     gsap.set(viewerPopoverEl.value, {
       autoAlpha: 0,
@@ -331,7 +372,6 @@ watch(
     gsap.killTweensOf(el);
 
     if (open) {
-      // ✅ refresh when open
       await loadVisitor();
 
       gsap.set(el, { pointerEvents: "auto" });
@@ -546,12 +586,18 @@ watch(
   width: 100%;
 }
 
+/* ✅ Subitem as flex row (icon + text) */
 .sidebar-subitem {
   font-size: 1rem;
   padding: 6px 8px;
   border-radius: 10px;
   color: #cbd5f5;
   cursor: pointer;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(148, 163, 184, 0.35);
   backdrop-filter: blur(10px);
@@ -561,6 +607,19 @@ watch(
   background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.4), rgba(15, 23, 42, 0.95));
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
   transform: translateX(2px);
+}
+
+.subicon {
+  width: 20px;
+  flex: 0 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  opacity: 0.95;
+}
+.subicon i {
+  font-size: 16px;
 }
 
 /* Footer */
@@ -611,7 +670,7 @@ watch(
 .status-text span { font-size: 0.75rem; font-weight: 500; }
 .status-text small { color: #9ca3af; }
 
-/* ✅ NEW viewer container */
+/* Viewer container */
 .viewerContainer {
   position: relative;
   display: flex;
@@ -640,7 +699,7 @@ watch(
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* Visitor overlay popover (glass) */
+/* Visitor overlay popover */
 .viewerPopover {
   position: absolute;
   right: 0;

@@ -1,7 +1,7 @@
 <template>
   <section class="card-section">
     <div class="card-header">
-      <h2 class="card-title">ຂ່າວສານ ແລະ ກິດຈະກກຳ</h2>
+      <h2 class="card-title">ຂ່າວສານ ແລະ ກິດຈະກຳ</h2>
       <div class="titlelapnet">
         <img
           src="/logolapnet/logolapnet.PNG"

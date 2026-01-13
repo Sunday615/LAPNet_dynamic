@@ -42,23 +42,74 @@
           </div>
 
           <ul v-if="openKey === 'product'" class="sidebar-subnav">
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-inquiry'); closeSidebar()">
-              ກວດຍອດເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/allproduct'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-table-cells-large"></i>
+              </span>
+              <span>ຜະລິດຕະພັນ ແລະ ການບໍລິການ ທັງໝົດ</span>
             </li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-cash-withdraw'); closeSidebar()">
-              ຖອນເງິນສົດຂ້າມທະນາຄານຜ່ານຕູ້ ATM
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/atm-inquiry'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-qrcode"></i>
+              </span>
+              <span>ກວດຍອດເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
             </li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/atm-transfer'); closeSidebar()">
-              ໂອນເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/atm-cash-withdraw'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+              </span>
+              <span>ຖອນເງິນສົດຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
             </li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/mobile-transfer'); closeSidebar()">
-              ໂອນເງິນຂ້າມທະນາຄານເທິງມືຖື
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/atm-transfer'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-right-left"></i>
+              </span>
+              <span>ໂອນເງິນຂ້າມທະນາຄານຜ່ານຕູ້ ATM</span>
             </li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/qr-payment'); closeSidebar()">
-              ຊຳລະຂ້າມທະນາຄານຜ່ານ LAPNet
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/mobile-transfer'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-mobile-screen"></i>
+              </span>
+              <span>ໂອນເງິນຂ້າມທະນາຄານເທິງມືຖື</span>
             </li>
-            <li class="sidebar-subitem" @click.stop="goTo('/products_service/crossborder'); closeSidebar()">
-              ຊຳລະຂ້າມແດນຜ່ານ QR CODE
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/qr-payment'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-money-bill-wave"></i>
+              </span>
+              <span>ຊຳລະຂ້າມທະນາຄານຜ່ານ LAPNet</span>
+            </li>
+
+            <li
+              class="sidebar-subitem"
+              @click.stop="goTo('/products_service/crossborder'); closeSidebar()"
+            >
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-qrcode"></i>
+              </span>
+              <span>ຊຳລະຂ້າມແດນຜ່ານ QR CODE</span>
             </li>
           </ul>
         </li>
@@ -73,13 +124,24 @@
 
           <ul v-if="openKey === 'member'" class="sidebar-subnav">
             <li class="sidebar-subitem" @click.stop="goTo('/member/membercardATM'); closeSidebar()">
-              ສະມາຊິກລະບົບບັດທະນາຄານຮ່ວມກັນ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-credit-card"></i>
+              </span>
+              <span>ສະມາຊິກລະບົບບັດທະນາຄານຮ່ວມກັນ</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/member/mobile_banking'); closeSidebar()">
-              ສະມາຊິກລະບົບຊຳລະຂ້າມທະນາຄານເທິງມືຖື
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </span>
+              <span>ສະມາຊິກລະບົບຊຳລະຂ້າມທະນາຄານເທິງມືຖື</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/member/crossborder'); closeSidebar()">
-              ສະມາຊິກລະບົບຊຳລະຂ້າມແດນຜ່ານ QR Code
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-earth-asia"></i>
+              </span>
+              <span>ສະມາຊິກລະບົບຊຳລະຂ້າມແດນຜ່ານ QR Code</span>
             </li>
           </ul>
         </li>
@@ -104,19 +166,38 @@
 
           <ul v-if="openKey === 'contact'" class="sidebar-subnav">
             <li class="sidebar-subitem" @click.stop="goTo('/aboutus/vision'); closeSidebar()">
-              ວິໄສທັດ ແລະ ພາລະກິດ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-lightbulb"></i>
+              </span>
+              <span>ວິໄສທັດ ແລະ ພາລະກິດ</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/aboutus/role'); closeSidebar()">
-              ພາລະບົດບາດ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-list-check"></i>
+              </span>
+              <span>ພາລະບົດບາດ</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/aboutus/history'); closeSidebar()">
-              ຄວາມເປັນມາ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-timeline"></i>
+              </span>
+              <span>ຄວາມເປັນມາ</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/aboutus/board_director'); closeSidebar()">
-              ສະພາບໍລິຫານ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-users-between-lines"></i>
+              </span>
+              <span>ສະພາບໍລິຫານ</span>
             </li>
+
             <li class="sidebar-subitem" @click.stop="goTo('/aboutus/companystructureimage'); closeSidebar()">
-              ໂຄງຮ່າງການຈັດຕັ້ງ
+              <span class="subicon" aria-hidden="true">
+                <i class="fa-solid fa-sitemap"></i>
+              </span>
+              <span>ໂຄງຮ່າງການຈັດຕັ້ງ</span>
             </li>
           </ul>
         </li>
@@ -128,9 +209,7 @@
       </ul>
 
       <footer class="sidebar-footer">
-        <!-- ✅ Separate containers (NOT merged) -->
         <div class="footerRow">
-          <!-- Help Center container -->
           <div class="status-pill" @click="goTo('/contactus'); closeSidebar()">
             <span class="status-dot"></span>
             <div class="status-text">
@@ -139,7 +218,6 @@
             </div>
           </div>
 
-          <!-- ✅ Viewer container (NEW) -->
           <div class="viewerContainer" :class="{ 'is-open': viewerOpen }">
             <button
               ref="viewerBtnEl"
@@ -151,7 +229,6 @@
               <i class="fa-solid fa-eye"></i>
             </button>
 
-            <!-- ✅ Visitor overlay (glass) -->
             <div ref="viewerPopoverEl" class="viewerPopover" aria-hidden="true" @click.stop>
               <div class="viewerPopoverInner">
                 <div class="viewerTop">
@@ -276,7 +353,7 @@ const openSidebar = () => {
 const closeSidebar = () => {
   if (!sidebarEl.value) return
   isOpen.value = false
-  viewerOpen.value = false // ✅ close overlay when sidebar closes
+  viewerOpen.value = false
 
   gsap.to(sidebarEl.value, { duration: 0.4, x: '100%', ease: 'power3.inOut' })
 
@@ -298,12 +375,9 @@ onMounted(async () => {
   window.addEventListener('resize', initPosition)
   window.addEventListener('keydown', onKeydown)
 
-  // ✅ load visitor stats once
   await fetchVisitor()
-
   await nextTick()
 
-  // init viewer popover hidden
   if (viewerPopoverEl.value) {
     gsap.set(viewerPopoverEl.value, {
       autoAlpha: 0,
@@ -320,14 +394,12 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
 })
 
-// ✅ expose functions so parent (homepage) can call them
 defineExpose({
   openSidebar,
   closeSidebar,
   toggleSidebar
 })
 
-// function receives path from click
 const goTo = (path) => {
   router.push(path)
 }
@@ -343,7 +415,6 @@ watch(
     gsap.killTweensOf(el)
 
     if (open) {
-      // ✅ refresh when opening
       await fetchVisitor()
 
       gsap.set(el, { pointerEvents: 'auto' })
@@ -600,12 +671,18 @@ watch(
   width: 100%;
 }
 
+/* ✅ ทำให้ subitem เป็นแถว: icon + text (เหมือนตัวอย่างก่อน) */
 .sidebar-subitem {
   font-size: 1rem;
   padding: 6px 8px;
   border-radius: 10px;
   color: #cbd5f5;
   cursor: pointer;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(148, 163, 184, 0.35);
   backdrop-filter: blur(10px);
@@ -615,6 +692,20 @@ watch(
   background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.4), rgba(15, 23, 42, 0.95));
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
   transform: translateX(2px);
+}
+
+/* ✅ icon wrapper */
+.subicon {
+  width: 20px;
+  flex: 0 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  opacity: 0.95;
+}
+.subicon i {
+  font-size: 16px;
 }
 
 /* Footer */
@@ -670,9 +761,7 @@ watch(
   color: #9ca3af;
 }
 
-/* =========================
-   ✅ Viewer container + overlay
-   ========================= */
+/* Viewer container + overlay */
 .viewerContainer {
   position: relative;
   display: flex;
@@ -680,8 +769,6 @@ watch(
   justify-content: center;
   z-index: 1;
 }
-
-/* ✅ ตามที่ขอ: ตอนกดให้ overlay อยู่บนสุด */
 .viewerContainer.is-open {
   z-index: 9999;
 }
@@ -713,15 +800,13 @@ watch(
   width: min(320px, 78vw);
   border-radius: 16px;
   overflow: hidden;
-
-   background: linear-gradient(180deg, rgba(15, 23, 42, 0.848), rgba(2, 6, 23, 0.85));
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.848), rgba(2, 6, 23, 0.85));
   border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
-
   transform-origin: bottom right;
-  z-index: 9999; /* ✅ force on top */
+  z-index: 9999;
 }
 
 .viewerPopoverInner {
