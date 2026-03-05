@@ -87,9 +87,18 @@ import secondfooter from "../../../components/footer/mainfooter/secondfooter.vue
 
 const root = ref(null);
 
-/** ✅ API */
-const EMP_API_ORIGIN = "http://175.0.198.10:3000";
-const EMP_API_URL = "http://175.0.198.10:3000/api/emp_lapnet";
+/** ✅ API (from .env only)
+ * Required in .env:
+ *   VITE_API_BASE_URL=http://175.0.198.10:3000
+ */
+const API_BASE = (() => {
+  const raw = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  return raw.replace(/\/+$/, "");
+})();
+
+/** ✅ Endpoints (no hard-coded base) */
+const EMP_API_ORIGIN = API_BASE;
+const EMP_API_URL = `${API_BASE}/api/emp_lapnet`;
 
 /**
  * ✅ โครงสร้างเดิม "ห้ามเปลี่ยน"
@@ -197,6 +206,9 @@ const normalizeApiPhoto = (path) => {
   if (p.startsWith("data:image/")) return p;
   if (isProbablyBase64(p)) return `data:image/png;base64,${p}`;
   if (/^https?:\/\//i.test(p)) return p;
+
+  // ✅ If API_BASE missing, avoid generating "undefined/..." URLs
+  if (!EMP_API_ORIGIN) return "";
 
   if (p.startsWith("/")) return `${EMP_API_ORIGIN}${p}`;
   return `${EMP_API_ORIGIN}/${p}`;
@@ -407,6 +419,8 @@ let gsapCtx;
 onMounted(async () => {
   // 1) fetch API + filter department=IT + เติมลง rows (โครงสร้างเดิม)
   try {
+    if (!EMP_API_ORIGIN) throw new Error("Missing VITE_API_BASE_URL in .env");
+
     const res = await fetch(EMP_API_URL, { headers: { Accept: "application/json" } });
     if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
     const json = await res.json();
@@ -415,7 +429,7 @@ onMounted(async () => {
 
     await fillITRowsFromApi(itEmps);
   } catch (e) {
-    // ถ้า API fail: คงไว้เป็น "—" ไม่ให้หน้าแตก
+    // If API fails: keep placeholders to avoid UI crash
   }
 
   // 2) ให้ DOM อัปเดตก่อน แล้วค่อย animate (GSAP เดิม)
@@ -473,7 +487,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (gsapCtx) gsapCtx.revert();
 
-  // ✅ revoke objectURL กัน memory leak
+  // Revoke object URLs to avoid memory leaks
   for (const u of createdObjectUrls) {
     try {
       URL.revokeObjectURL(u);
@@ -482,7 +496,6 @@ onBeforeUnmount(() => {
   createdObjectUrls.clear();
 });
 </script>
-
 <style scoped>
 .navbarcompany {
   width: 100%;

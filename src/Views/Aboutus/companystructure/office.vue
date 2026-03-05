@@ -86,66 +86,57 @@ import secondfooter from "../../../components/footer/mainfooter/secondfooter.vue
 
 const root = ref(null);
 
-/** ✅ API */
-const EMP_API_ORIGIN = "http://175.0.198.10:3000";
-const EMP_API_URL = "http://175.0.198.10:3000/api/emp_lapnet";
+/** =========================
+ * ✅ API base from Vite .env ONLY
+ * Required in project root .env:
+ *   VITE_API_BASE_URL=http://175.0.198.10:3000
+ * ========================= */
+function resolveEnvBaseUrl() {
+  const raw = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  return raw.replace(/\/+$/, "");
+}
+
+function joinBaseAndPath(baseUrl, path) {
+  const b = String(baseUrl || "").trim().replace(/\/+$/, "");
+  const p = String(path || "");
+
+  if (!b) return p;
+
+  // Prevent double "/api" when base already ends with "/api" and path starts with "/api"
+  if (b.endsWith("/api") && /^\/api(\/|$)/i.test(p)) {
+    return b + p.replace(/^\/api/i, "");
+  }
+
+  if (!p) return b;
+  if (p.startsWith("/")) return b + p;
+  return b + "/" + p;
+}
+
+const API_BASE = resolveEnvBaseUrl();
+// Asset origin for images/files (strip trailing "/api" if configured)
+const EMP_API_ORIGIN = API_BASE.endsWith("/api") ? API_BASE.slice(0, -4) : API_BASE;
+const EMP_API_URL = joinBaseAndPath(API_BASE, "/api/emp_lapnet");
 
 /**
- * ✅ (โครงสร้างเดิม) 4 แถว / 6 ใบ ห้ามเปลี่ยนโครงสร้าง
- * - แค่เติม name/role/photo จาก API (department = Administration)
- * - role ใช้จาก API field "role"
+ * ✅ (Keep structure) 4 rows / 6 cards (DO NOT change structure)
+ * - Fill name/role/photo from API (department = Administration)
+ * - Role uses API field "role"
  */
 const rows = ref([
+  [{ id: 1, name: "—", role: "—", photo: "" }],
+  [{ id: 2, name: "—", role: "—", photo: "" }],
   [
-    {
-      id: 1,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
+    { id: 3, name: "—", role: "—", photo: "" },
+    { id: 4, name: "—", role: "—", photo: "" },
+    { id: 5, name: "—", role: "—", photo: "" },
   ],
-  [
-    {
-      id: 2,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-  ],
-  [
-    {
-      id: 3,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-    {
-      id: 4,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-    {
-      id: 5,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-  ],
-  [
-    {
-      id: 6,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-  ],
+  [{ id: 6, name: "—", role: "—", photo: "" }],
 ]);
 
-/** ✅ เก็บ objectURL รูปที่สร้างไว้ (กัน memory leak) */
+/** Track created object URLs to avoid memory leaks */
 const createdObjectUrls = new Set();
 
-// initials fallback (2 ตัวแรก)
+// Initials fallback (first 2 chars)
 const getInitials = (name) => (name || "").trim().slice(0, 2) || "?";
 
 const unwrapEmployees = (payload) => {
@@ -174,11 +165,11 @@ const isProbablyBase64 = (s) => {
 };
 
 /**
- * ✅ normalize รูปจาก API
+ * Normalize photo field from API:
  * - data:image/...
  * - base64 => data:image/png;base64,...
  * - full url
- * - /path หรือ path => prefix ด้วย origin
+ * - /path or path => prefix with EMP_API_ORIGIN
  */
 const normalizeApiPhoto = (path) => {
   if (!path || typeof path !== "string") return "";
@@ -189,29 +180,25 @@ const normalizeApiPhoto = (path) => {
   if (isProbablyBase64(p)) return `data:image/png;base64,${p}`;
   if (/^https?:\/\//i.test(p)) return p;
 
+  if (!EMP_API_ORIGIN) return "";
   if (p.startsWith("/")) return `${EMP_API_ORIGIN}${p}`;
   return `${EMP_API_ORIGIN}/${p}`;
 };
 
 const getDepartmentFromEmp = (emp) => {
-  return getField(
-    emp,
-    ["department", "dept", "department_name", "dep", "Department", "DEPARTMENT"],
-    ""
-  );
+  return getField(emp, ["department", "dept", "department_name", "dep", "Department", "DEPARTMENT"], "");
 };
 
-/** ✅ เงื่อนไข: department = Administration */
+/** Condition: department = Administration (with loose matching) */
 const isAdministrationDept = (emp) => {
   const d = (getDepartmentFromEmp(emp) || "").trim().toLowerCase();
   if (!d) return false;
 
-  // รองรับพิมพ์ผิด/คำใกล้เคียงด้วย (เพื่อไม่ให้หลุด)
   const needles = ["administration", "admin", "aministration", "office", "ຫ້ອງການ"];
   return needles.some((n) => d.includes(n.toLowerCase()));
 };
 
-/** ✅ role ใช้จาก API = role (fallback เผื่อไม่มี field) */
+/** Role uses API field "role" (fallback if missing) */
 const getRoleFromEmp = (emp) => {
   return getField(emp, ["role", "position", "title", "emp_position", "employee_position"], "");
 };
@@ -220,7 +207,7 @@ const getNameFromEmp = (emp) => {
   return getField(emp, ["full_name", "name", "emp_name", "employee_name", "fullname"], "");
 };
 
-/** ✅ รูป: imageprofile เป็นหลัก */
+/** Photo uses "imageprofile" primarily */
 const getRawPhotoFromEmp = (emp) => {
   return getField(
     emp,
@@ -246,10 +233,7 @@ const fetchImageAsObjectUrl = async (url) => {
   if (url.startsWith("data:image/")) return url;
 
   try {
-    const res = await fetch(url, {
-      method: "GET",
-      // credentials: "include",
-    });
+    const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`image fetch failed: ${res.status}`);
     const blob = await res.blob();
     const objUrl = URL.createObjectURL(blob);
@@ -270,9 +254,8 @@ const findPersonById = (id) => {
 };
 
 /**
- * ✅ เลือกพนักงาน Admin ไปใส่ใน "slot" 1..6 โดย "ไม่เปลี่ยนโครงสร้าง"
- * - พยายามจับคู่ตาม role keyword (Lao/EN) ก่อน
- * - ถ้าไม่เจอ จะไล่หยิบจาก list ที่เหลือแทน
+ * Pick employees into slots 1..6 without changing layout structure.
+ * Prefer matching by role keywords (Lao/EN), fallback to remaining list order.
  */
 const pickByRole = (pool, predicate) => {
   const idx = pool.findIndex((emp) => predicate(getRoleFromEmp(emp)));
@@ -285,14 +268,12 @@ const lower = (s) => (s || "").toLowerCase();
 const fillAdministrationRowsFromApi = async (adminEmps) => {
   const pool = [...adminEmps];
 
-  // slot1: Head (หัวหน้า)
   const emp1 =
     pickByRole(pool, (r) => lower(r).includes("ຫົວໜ້າ")) ||
     pickByRole(pool, (r) => lower(r).includes("head")) ||
     pool.shift() ||
     null;
 
-  // slot2: Deputy (รองหัวหน้า)
   const emp2 =
     pickByRole(pool, (r) => lower(r).includes("ຮອງ")) ||
     pickByRole(pool, (r) => lower(r).includes("deputy")) ||
@@ -300,7 +281,6 @@ const fillAdministrationRowsFromApi = async (adminEmps) => {
     pool.shift() ||
     null;
 
-  // slot3: Admin/General
   const emp3 =
     pickByRole(pool, (r) => lower(r).includes("ບໍລິຫານ")) ||
     pickByRole(pool, (r) => lower(r).includes("administration")) ||
@@ -308,21 +288,18 @@ const fillAdministrationRowsFromApi = async (adminEmps) => {
     pool.shift() ||
     null;
 
-  // slot4: Legal
   const emp4 =
     pickByRole(pool, (r) => lower(r).includes("ນິຕິ")) ||
     pickByRole(pool, (r) => lower(r).includes("legal")) ||
     pool.shift() ||
     null;
 
-  // slot5: Secretary
   const emp5 =
     pickByRole(pool, (r) => lower(r).includes("ເລຂາ")) ||
     pickByRole(pool, (r) => lower(r).includes("secretary")) ||
     pool.shift() ||
     null;
 
-  // slot6: HR/Personnel
   const emp6 =
     pickByRole(pool, (r) => lower(r).includes("ບຸກຄະລາ")) ||
     pickByRole(pool, (r) => lower(r).includes("hr")) ||
@@ -340,7 +317,6 @@ const fillAdministrationRowsFromApi = async (adminEmps) => {
     [6, emp6],
   ];
 
-  // preload + set fields
   await Promise.all(
     slotMap.map(async ([slotId, emp]) => {
       const person = findPersonById(slotId);
@@ -378,8 +354,10 @@ const fillAdministrationRowsFromApi = async (adminEmps) => {
 let gsapCtx;
 
 onMounted(async () => {
-  // 1) fetch API + filter department=Administration + เติมลง rows (โครงสร้างเดิม)
+  // 1) Fetch API and fill rows (department=Administration) without changing structure
   try {
+    if (!API_BASE) throw new Error("Missing VITE_API_BASE_URL in .env");
+
     const res = await fetch(EMP_API_URL, { headers: { Accept: "application/json" } });
     if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
     const json = await res.json();
@@ -388,23 +366,16 @@ onMounted(async () => {
 
     await fillAdministrationRowsFromApi(adminEmps);
   } catch (e) {
-    // ถ้า API fail: คงไว้เป็น "—" ไม่ให้หน้าแตก
+    // Keep placeholders if API fails
   }
 
-  // 2) ให้ DOM อัปเดตก่อน แล้วค่อย animate (GSAP เดิม)
+  // 2) Animate after DOM update
   await nextTick();
 
   gsapCtx = gsap.context(() => {
-    const tl = gsap.timeline({
-      defaults: { ease: "power3.out" },
-    });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    tl.from(".org-container", {
-      opacity: 0,
-      y: 48,
-      scale: 0.97,
-      duration: 0.8,
-    })
+    tl.from(".org-container", { opacity: 0, y: 48, scale: 0.97, duration: 0.8 })
       .from(".org-header-left", { x: -40, opacity: 0, duration: 0.6 }, "-=0.4")
       .from(".org-header-right", { x: 40, opacity: 0, duration: 0.6 }, "-=0.5")
       .from(".org-frame", { opacity: 0, y: 24, duration: 0.7 }, "-=0.25")
@@ -423,12 +394,7 @@ onMounted(async () => {
       )
       .from(
         ".org-avatar-ring",
-        {
-          scale: 0.5,
-          opacity: 0,
-          duration: 0.55,
-          stagger: { each: 0.07, from: "center" },
-        },
+        { scale: 0.5, opacity: 0, duration: 0.55, stagger: { each: 0.07, from: "center" } },
         "-=0.55"
       );
 
@@ -445,7 +411,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (gsapCtx) gsapCtx.revert();
 
-  // ✅ revoke objectURL กัน memory leak
   for (const u of createdObjectUrls) {
     try {
       URL.revokeObjectURL(u);
@@ -454,7 +419,6 @@ onBeforeUnmount(() => {
   createdObjectUrls.clear();
 });
 </script>
-
 <style scoped>
 .navbarcompany {
   width: 100%;

@@ -64,18 +64,27 @@
 
   <secondfooter />
 </template>
-
 <script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { gsap } from 'gsap'
-import main_navbar from '../../../components/miannavbar/main_navbar.vue'
-import cpn_navbar from './navbarcompany/cpn_navbar.vue'
-import secondfooter from '../../../components/footer/mainfooter/secondfooter.vue'
-const root = ref(null)
+import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { gsap } from "gsap";
+import main_navbar from "../../../components/miannavbar/main_navbar.vue";
+import cpn_navbar from "./navbarcompany/cpn_navbar.vue";
+import secondfooter from "../../../components/footer/mainfooter/secondfooter.vue";
 
-/** ✅ API */
-const EMP_API_ORIGIN = 'http://175.0.198.10:3000'
-const EMP_API_URL = 'http://175.0.198.10:3000/api/emp_lapnet'
+const root = ref(null);
+
+/** ✅ API (from .env only)
+ * Required in .env:
+ *   VITE_API_BASE_URL=http://175.0.198.10:3000
+ */
+const API_BASE = (() => {
+  const raw = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  return raw.replace(/\/+$/, "");
+})();
+
+/** ✅ Endpoints (no hard-coded base) */
+const EMP_API_ORIGIN = API_BASE;
+const EMP_API_URL = `${API_BASE}/api/emp_lapnet`;
 
 /**
  * ✅ โครงสร้างเดิม "ห้ามเปลี่ยน"
@@ -88,221 +97,224 @@ const EMP_API_URL = 'http://175.0.198.10:3000/api/emp_lapnet'
  */
 const rows = ref([
   [
-    { id: 1, name: '—', role: '—', photo: '' }
+    { id: 1, name: "—", role: "—", photo: "" }
   ],
   [
-    { id: 2, name: '—', role: '—', photo: '' },
-    { id: 3, name: '—', role: '—', photo: '' }
+    { id: 2, name: "—", role: "—", photo: "" },
+    { id: 3, name: "—", role: "—", photo: "" }
   ],
   [
-    { id: 4, name: '—', role: '—', photo: '' },
-    { id: 5, name: '—', role: '—', photo: '' },
-    { id: 6, name: '—', role: '—', photo: '' }
+    { id: 4, name: "—", role: "—", photo: "" },
+    { id: 5, name: "—", role: "—", photo: "" },
+    { id: 6, name: "—", role: "—", photo: "" }
   ],
   [
-    { id: 7, name: '—', role: '—', photo: '' },
-    { id: 8, name: '—', role: '—', photo: '' }
+    { id: 7, name: "—", role: "—", photo: "" },
+    { id: 8, name: "—", role: "—", photo: "" }
   ]
-])
+]);
 
-/** ✅ เก็บ objectURL รูปที่สร้างไว้ (กัน memory leak) */
-const createdObjectUrls = new Set()
+/** ✅ Keep created object URLs to prevent memory leaks */
+const createdObjectUrls = new Set();
 
 const unwrapEmployees = (payload) => {
-  if (Array.isArray(payload)) return payload
-  if (payload && Array.isArray(payload.data)) return payload.data
-  if (payload && Array.isArray(payload.result)) return payload.result
-  if (payload && Array.isArray(payload.items)) return payload.items
-  return []
-}
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  if (payload && Array.isArray(payload.result)) return payload.result;
+  if (payload && Array.isArray(payload.items)) return payload.items;
+  return [];
+};
 
-const getField = (obj, keys, fallback = '') => {
+const getField = (obj, keys, fallback = "") => {
   for (const k of keys) {
-    const v = obj?.[k]
-    if (typeof v === 'string' && v.trim()) return v.trim()
-    if (typeof v === 'number') return String(v)
+    const v = obj?.[k];
+    if (typeof v === "string" && v.trim()) return v.trim();
+    if (typeof v === "number") return String(v);
   }
-  return fallback
-}
+  return fallback;
+};
 
 const getDepartmentFromEmp = (emp) => {
   return getField(
     emp,
-    ['department', 'dept', 'department_name', 'dep', 'Department', 'DEPARTMENT'],
-    ''
-  )
-}
+    ["department", "dept", "department_name", "dep", "Department", "DEPARTMENT"],
+    ""
+  );
+};
 
-/** ✅ เงื่อนไข: department = Operation */
+/** ✅ Condition: department = Operation */
 const isOperationDept = (emp) => {
-  const d = (getDepartmentFromEmp(emp) || '').trim().toLowerCase()
-  if (!d) return false
-  const needles = ['operation', 'operations', 'ops', 'ດໍາເນີນ', 'ດຳເນີນ']
-  return needles.some((n) => d.includes(n.toLowerCase()))
-}
+  const d = (getDepartmentFromEmp(emp) || "").trim().toLowerCase();
+  if (!d) return false;
+  const needles = ["operation", "operations", "ops", "ດໍາເນີນ", "ດຳເນີນ"];
+  return needles.some((n) => d.includes(n.toLowerCase()));
+};
 
-/** ✅ role ใช้จาก API = role (fallback เผื่อ field ชื่ออื่น) */
+/** ✅ Role from API (fallback if field name differs) */
 const getRoleFromEmp = (emp) => {
-  return getField(emp, ['role', 'position', 'title', 'emp_position', 'employee_position'], '')
-}
+  return getField(emp, ["role", "position", "title", "emp_position", "employee_position"], "");
+};
 
 const getNameFromEmp = (emp) => {
-  return getField(emp, ['full_name', 'name', 'emp_name', 'employee_name', 'fullname'], '')
-}
+  return getField(emp, ["full_name", "name", "emp_name", "employee_name", "fullname"], "");
+};
 
 const isProbablyBase64 = (s) => {
-  if (!s || typeof s !== 'string') return false
-  const t = s.trim()
-  if (t.startsWith('data:image/')) return false
-  if (t.length < 50) return false
-  return /^[A-Za-z0-9+/=]+$/.test(t)
-}
+  if (!s || typeof s !== "string") return false;
+  const t = s.trim();
+  if (t.startsWith("data:image/")) return false;
+  if (t.length < 50) return false;
+  return /^[A-Za-z0-9+/=]+$/.test(t);
+};
 
-/** ✅ รูป: imageprofile เป็นหลัก */
+/** ✅ Photo: imageprofile is primary */
 const getRawPhotoFromEmp = (emp) => {
   return getField(
     emp,
     [
-      'imageprofile',
-      'imageProfile',
-      'image_profile',
-      'profileImage',
-      'profile_image',
-      'photo',
-      'photo_url',
-      'avatar',
-      'image',
-      'img',
-      'picture'
+      "imageprofile",
+      "imageProfile",
+      "image_profile",
+      "profileImage",
+      "profile_image",
+      "photo",
+      "photo_url",
+      "avatar",
+      "image",
+      "img",
+      "picture",
     ],
-    ''
-  )
-}
+    ""
+  );
+};
 
 /**
- * ✅ normalize รูปจาก API
+ * ✅ Normalize photo from API
  * - data:image/...
  * - base64 => data:image/png;base64,...
  * - full url
- * - /path หรือ path => prefix ด้วย origin
+ * - /path or path => prefix with origin
  */
 const normalizeApiPhoto = (path) => {
-  if (!path || typeof path !== 'string') return ''
-  const p = path.trim()
-  if (!p) return ''
+  if (!path || typeof path !== "string") return "";
+  const p = path.trim();
+  if (!p) return "";
 
-  if (p.startsWith('data:image/')) return p
-  if (isProbablyBase64(p)) return `data:image/png;base64,${p}`
-  if (/^https?:\/\//i.test(p)) return p
+  if (p.startsWith("data:image/")) return p;
+  if (isProbablyBase64(p)) return `data:image/png;base64,${p}`;
+  if (/^https?:\/\//i.test(p)) return p;
 
-  if (p.startsWith('/')) return `${EMP_API_ORIGIN}${p}`
-  return `${EMP_API_ORIGIN}/${p}`
-}
+  // ✅ If API_BASE missing, avoid generating invalid URLs
+  if (!EMP_API_ORIGIN) return "";
+
+  if (p.startsWith("/")) return `${EMP_API_ORIGIN}${p}`;
+  return `${EMP_API_ORIGIN}/${p}`;
+};
 
 const fetchImageAsObjectUrl = async (url) => {
-  if (!url) return ''
-  if (url.startsWith('data:image/')) return url
+  if (!url) return "";
+  if (url.startsWith("data:image/")) return url;
 
   try {
     const res = await fetch(url, {
-      method: 'GET'
-      // credentials: 'include',
-    })
-    if (!res.ok) throw new Error(`image fetch failed: ${res.status}`)
-    const blob = await res.blob()
-    const objUrl = URL.createObjectURL(blob)
-    createdObjectUrls.add(objUrl)
-    return objUrl
+      method: "GET",
+      // credentials: "include",
+    });
+    if (!res.ok) throw new Error(`image fetch failed: ${res.status}`);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    createdObjectUrls.add(objUrl);
+    return objUrl;
   } catch {
-    return ''
+    return "";
   }
-}
+};
 
 const findPersonById = (id) => {
   for (const row of rows.value) {
     for (const p of row) {
-      if (p.id === id) return p
+      if (p.id === id) return p;
     }
   }
-  return null
-}
+  return null;
+};
 
-const lower = (s) => (s || '').toLowerCase()
+const lower = (s) => (s || "").toLowerCase();
 
 const pickByRole = (pool, predicate) => {
-  const idx = pool.findIndex((emp) => predicate(getRoleFromEmp(emp)))
-  if (idx >= 0) return pool.splice(idx, 1)[0]
-  return null
-}
+  const idx = pool.findIndex((emp) => predicate(getRoleFromEmp(emp)));
+  if (idx >= 0) return pool.splice(idx, 1)[0];
+  return null;
+};
 
 /**
- * ✅ เติม 8 slot (1..8) แบบไม่เปลี่ยนโครงสร้าง
- * - slot1: Head (หัวหน้าแผนก)
- * - slot8: Risk (ความเสี่ยง)
- * - slot4 & 7: Settlement/Reconcile (ไล่ลียง/หักบัญชี) ถ้ามี
- * - ที่เหลือหยิบตามลำดับ
+ * ✅ Fill 8 slots (1..8) without changing structure
+ * - slot1: Head
+ * - slot8: Risk
+ * - slot4 & 7: Settlement/Reconcile if possible
+ * - others: pick in order
  */
 const fillOperationRowsFromApi = async (opEmps) => {
-  const pool = [...opEmps]
+  const pool = [...opEmps];
 
   // slot1: Head
   const emp1 =
-    pickByRole(pool, (r) => lower(r).includes('ຫົວໜ້າ')) ||
-    pickByRole(pool, (r) => lower(r).includes('head')) ||
-    pickByRole(pool, (r) => lower(r).includes('manager')) ||
+    pickByRole(pool, (r) => lower(r).includes("ຫົວໜ້າ")) ||
+    pickByRole(pool, (r) => lower(r).includes("head")) ||
+    pickByRole(pool, (r) => lower(r).includes("manager")) ||
     pool.shift() ||
-    null
+    null;
 
   // slot8: Risk
   const emp8 =
-    pickByRole(pool, (r) => lower(r).includes('risk')) ||
-    pickByRole(pool, (r) => lower(r).includes('ຄວາມສ່ຽງ')) ||
-    null
+    pickByRole(pool, (r) => lower(r).includes("risk")) ||
+    pickByRole(pool, (r) => lower(r).includes("ຄວາມສ່ຽງ")) ||
+    null;
 
-  // slot4 & slot7: Settlement/Reconcile (ไล่ลียง/หักบัญชี)
+  // slot4 & slot7: Settlement/Reconcile
   const emp4 =
-    pickByRole(pool, (r) => lower(r).includes('settlement')) ||
-    pickByRole(pool, (r) => lower(r).includes('reconcile')) ||
-    pickByRole(pool, (r) => lower(r).includes('ຫັກບັນຊີ')) ||
-    pickByRole(pool, (r) => lower(r).includes('ໄລ່ລຽງ')) ||
-    null
+    pickByRole(pool, (r) => lower(r).includes("settlement")) ||
+    pickByRole(pool, (r) => lower(r).includes("reconcile")) ||
+    pickByRole(pool, (r) => lower(r).includes("ຫັກບັນຊີ")) ||
+    pickByRole(pool, (r) => lower(r).includes("ໄລ່ລຽງ")) ||
+    null;
 
   const emp7 =
-    pickByRole(pool, (r) => lower(r).includes('settlement')) ||
-    pickByRole(pool, (r) => lower(r).includes('reconcile')) ||
-    pickByRole(pool, (r) => lower(r).includes('ຫັກບັນຊີ')) ||
-    pickByRole(pool, (r) => lower(r).includes('ໄລ່ລຽງ')) ||
-    null
+    pickByRole(pool, (r) => lower(r).includes("settlement")) ||
+    pickByRole(pool, (r) => lower(r).includes("reconcile")) ||
+    pickByRole(pool, (r) => lower(r).includes("ຫັກບັນຊີ")) ||
+    pickByRole(pool, (r) => lower(r).includes("ໄລ່ລຽງ")) ||
+    null;
 
   // slot2: Marketing
   const emp2 =
-    pickByRole(pool, (r) => lower(r).includes('marketing')) ||
-    pickByRole(pool, (r) => lower(r).includes('ຕະຫຼາດ')) ||
+    pickByRole(pool, (r) => lower(r).includes("marketing")) ||
+    pickByRole(pool, (r) => lower(r).includes("ຕະຫຼາດ")) ||
     pool.shift() ||
-    null
+    null;
 
   // slot3: Support
   const emp3 =
-    pickByRole(pool, (r) => lower(r).includes('support')) ||
-    pickByRole(pool, (r) => lower(r).includes('ສະໜັບສະໜູນ')) ||
+    pickByRole(pool, (r) => lower(r).includes("support")) ||
+    pickByRole(pool, (r) => lower(r).includes("ສະໜັບສະໜູນ")) ||
     pool.shift() ||
-    null
+    null;
 
   // slot5,6: Support/General
   const emp5 =
-    pickByRole(pool, (r) => lower(r).includes('support')) ||
-    pickByRole(pool, (r) => lower(r).includes('ສະໜັບສະໜູນ')) ||
+    pickByRole(pool, (r) => lower(r).includes("support")) ||
+    pickByRole(pool, (r) => lower(r).includes("ສະໜັບສະໜູນ")) ||
     pool.shift() ||
-    null
+    null;
 
   const emp6 =
-    pickByRole(pool, (r) => lower(r).includes('support')) ||
-    pickByRole(pool, (r) => lower(r).includes('ສະໜັບສະໜູນ')) ||
+    pickByRole(pool, (r) => lower(r).includes("support")) ||
+    pickByRole(pool, (r) => lower(r).includes("ສະໜັບສະໜູນ")) ||
     pool.shift() ||
-    null
+    null;
 
-  // ถ้ายังเหลือ เติมให้ครบ
-  const ensure = (x) => x || pool.shift() || null
+  // ensure remaining slots are filled
+  const ensure = (x) => x || pool.shift() || null;
   const slots = {
     1: emp1,
     2: ensure(emp2),
@@ -311,144 +323,129 @@ const fillOperationRowsFromApi = async (opEmps) => {
     5: ensure(emp5),
     6: ensure(emp6),
     7: ensure(emp7),
-    8: emp8 ? emp8 : ensure(null)
-  }
+    8: emp8 ? emp8 : ensure(null),
+  };
 
   await Promise.all(
     Object.entries(slots).map(async ([slotIdStr, emp]) => {
-      const slotId = Number(slotIdStr)
-      const person = findPersonById(slotId)
-      if (!person) return
+      const slotId = Number(slotIdStr);
+      const person = findPersonById(slotId);
+      if (!person) return;
 
       if (!emp) {
-        person.name = '—'
-        person.role = '—'
-        person.photo = ''
-        return
+        person.name = "—";
+        person.role = "—";
+        person.photo = "";
+        return;
       }
 
-      person.name = getNameFromEmp(emp) || '—'
-      person.role = getRoleFromEmp(emp) || '—'
+      person.name = getNameFromEmp(emp) || "—";
+      person.role = getRoleFromEmp(emp) || "—";
 
-      const rawPhoto = getRawPhotoFromEmp(emp)
-      const normalized = normalizeApiPhoto(rawPhoto)
+      const rawPhoto = getRawPhotoFromEmp(emp);
+      const normalized = normalizeApiPhoto(rawPhoto);
 
       if (!normalized) {
-        person.photo = ''
-        return
+        person.photo = "";
+        return;
       }
 
-      if (normalized.startsWith('data:image/')) {
-        person.photo = normalized
-        return
+      if (normalized.startsWith("data:image/")) {
+        person.photo = normalized;
+        return;
       }
 
-      const objUrl = await fetchImageAsObjectUrl(normalized)
-      person.photo = objUrl || normalized
+      const objUrl = await fetchImageAsObjectUrl(normalized);
+      person.photo = objUrl || normalized;
     })
-  )
-}
+  );
+};
 
 // initials fallback
-const getInitials = (name) => (name || '').trim().slice(0, 2) || '?'
+const getInitials = (name) => (name || "").trim().slice(0, 2) || "?";
 
-let gsapCtx
+let gsapCtx;
 
 onMounted(async () => {
-  // 1) fetch API + filter department=Operation + เติมลง rows (โครงสร้างเดิม)
+  // 1) fetch API + filter department=Operation + fill rows
   try {
-    const res = await fetch(EMP_API_URL, { headers: { Accept: 'application/json' } })
-    if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`)
-    const json = await res.json()
-    const all = unwrapEmployees(json)
-    const opEmps = (all || []).filter(isOperationDept)
+    if (!EMP_API_ORIGIN) throw new Error("Missing VITE_API_BASE_URL in .env");
 
-    await fillOperationRowsFromApi(opEmps)
+    const res = await fetch(EMP_API_URL, { headers: { Accept: "application/json" } });
+    if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+    const json = await res.json();
+    const all = unwrapEmployees(json);
+    const opEmps = (all || []).filter(isOperationDept);
+
+    await fillOperationRowsFromApi(opEmps);
   } catch {
-    // ถ้า API fail: คงไว้เป็น "—" ไม่ให้หน้าแตก
+    // If API fails: keep placeholders to avoid UI crash
   }
 
-  // 2) ให้ DOM อัปเดตก่อน แล้วค่อย animate (GSAP เดิม)
-  await nextTick()
+  // 2) wait DOM update then animate (GSAP)
+  await nextTick();
 
   gsapCtx = gsap.context(() => {
     const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' }
-    })
+      defaults: { ease: "power3.out" },
+    });
 
-    tl.from('.org-container', {
+    tl.from(".org-container", {
       opacity: 0,
       y: 48,
       scale: 0.97,
-      duration: 0.8
+      duration: 0.8,
     })
+      .from(".org-header-left", { x: -40, opacity: 0, duration: 0.6 }, "-=0.4")
+      .from(".org-header-right", { x: 40, opacity: 0, duration: 0.6 }, "-=0.5")
+      .from(".org-frame", { opacity: 0, y: 24, duration: 0.7 }, "-=0.25")
+      .from(".org-row", { opacity: 0, y: 40, duration: 0.7, stagger: 0.12 }, "-=0.2")
       .from(
-        '.org-header-left',
-        { x: -40, opacity: 0, duration: 0.6 },
-        '-=0.4'
-      )
-      .from(
-        '.org-header-right',
-        { x: 40, opacity: 0, duration: 0.6 },
-        '-=0.5'
-      )
-      .from(
-        '.org-frame',
-        { opacity: 0, y: 24, duration: 0.7 },
-        '-=0.25'
-      )
-      .from(
-        '.org-row',
-        { opacity: 0, y: 40, duration: 0.7, stagger: 0.12 },
-        '-=0.2'
-      )
-      .from(
-        '.org-card',
+        ".org-card",
         {
           opacity: 0,
           y: 30,
           rotateX: -14,
-          transformOrigin: '50% 100%',
+          transformOrigin: "50% 100%",
           duration: 0.8,
-          stagger: { each: 0.06, from: 'center' }
+          stagger: { each: 0.06, from: "center" },
         },
-        '-=0.6'
+        "-=0.6"
       )
       .from(
-        '.org-avatar-ring',
+        ".org-avatar-ring",
         {
           scale: 0.5,
           opacity: 0,
           duration: 0.55,
-          stagger: { each: 0.07, from: 'center' }
+          stagger: { each: 0.07, from: "center" },
         },
-        '-=0.55'
-      )
+        "-=0.55"
+      );
 
     // glow pulse
-    gsap.to('.org-card', {
-      boxShadow: '0 22px 48px rgba(15, 23, 42, 0.45)',
+    gsap.to(".org-card", {
+      boxShadow: "0 22px 48px rgba(15, 23, 42, 0.45)",
       duration: 3.2,
-      ease: 'sine.inOut',
+      ease: "sine.inOut",
       repeat: -1,
-      yoyo: true
-    })
-  }, root.value)
-})
+      yoyo: true,
+    });
+  }, root.value);
+});
 
 onBeforeUnmount(() => {
-  if (gsapCtx) gsapCtx.revert()
+  if (gsapCtx) gsapCtx.revert();
 
-  // ✅ revoke objectURL กัน memory leak
+  // Revoke object URLs to avoid memory leaks
   for (const u of createdObjectUrls) {
     try {
-      URL.revokeObjectURL(u)
+      URL.revokeObjectURL(u);
     } catch {}
   }
-  createdObjectUrls.clear()
-})
+  createdObjectUrls.clear();
+});
 </script>
-
 <style scoped>
 .navbarcompany {
   width: 100%;

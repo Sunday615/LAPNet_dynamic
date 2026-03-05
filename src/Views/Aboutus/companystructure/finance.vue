@@ -72,7 +72,6 @@
 
   <secondfooter />
 </template>
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { gsap } from "gsap";
@@ -82,55 +81,58 @@ import secondfooter from "../../../components/footer/mainfooter/secondfooter.vue
 
 const root = ref(null);
 
-/** ✅ API */
-const EMP_API_ORIGIN = "http://175.0.198.10:3000";
-const EMP_API_URL = "http://175.0.198.10:3000/api/emp_lapnet";
+/** =========================
+ * ✅ API base from Vite .env ONLY
+ * Required in project root .env:
+ *   VITE_API_BASE_URL=http://175.0.198.10:3000
+ * ========================= */
+function resolveEnvBaseUrl() {
+  const raw = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  return raw.replace(/\/+$/, "");
+}
+
+function joinBaseAndPath(baseUrl, path) {
+  const b = String(baseUrl || "").trim().replace(/\/+$/, "");
+  const p = String(path || "");
+
+  if (!b) return p;
+
+  // Prevent double "/api" when base already ends with "/api" and path starts with "/api"
+  if (b.endsWith("/api") && /^\/api(\/|$)/i.test(p)) {
+    return b + p.replace(/^\/api/i, "");
+  }
+
+  if (!p) return b;
+  if (p.startsWith("/")) return b + p;
+  return b + "/" + p;
+}
+
+const API_BASE = resolveEnvBaseUrl();
+// Asset origin for images/files (strip trailing "/api" if configured)
+const EMP_API_ORIGIN = API_BASE.endsWith("/api") ? API_BASE.slice(0, -4) : API_BASE;
+const EMP_API_URL = joinBaseAndPath(API_BASE, "/api/emp_lapnet");
 
 /**
- * ✅ โครงสร้างเดิม "ห้ามเปลี่ยน"
+ * ✅ Keep structure (DO NOT change)
  * - 2 rows:
- *   row 0: 1 คน
- *   row 1: 3 คน
- * - แค่เติม name/role/photo จาก API (department = Finance & Accounting)
- * - role ใช้จาก API field "role"
+ *   row 0: 1 person (id=1)
+ *   row 1: 3 persons (id=2..4)
+ * - Fill name/role/photo from API (department = Finance & Accounting)
+ * - Role uses API field "role"
  */
 const rows = ref([
-  // row 0
+  [{ id: 1, name: "—", role: "—", photo: "" }],
   [
-    {
-      id: 1,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-  ],
-  // row 1 (3 คน)
-  [
-    {
-      id: 2,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-    {
-      id: 3,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
-    {
-      id: 4,
-      name: "—",
-      role: "—",
-      photo: "",
-    },
+    { id: 2, name: "—", role: "—", photo: "" },
+    { id: 3, name: "—", role: "—", photo: "" },
+    { id: 4, name: "—", role: "—", photo: "" },
   ],
 ]);
 
-/** ✅ เก็บ objectURL รูปที่สร้างไว้ (กัน memory leak) */
+/** Track created object URLs to avoid memory leaks */
 const createdObjectUrls = new Set();
 
-// initials fallback
+// Initials fallback
 const getInitials = (name) => (name || "").trim().slice(0, 2) || "?";
 
 const unwrapEmployees = (payload) => {
@@ -159,11 +161,11 @@ const isProbablyBase64 = (s) => {
 };
 
 /**
- * ✅ normalize รูปจาก API
+ * Normalize photo field from API:
  * - data:image/...
  * - base64 => data:image/png;base64,...
  * - full url
- * - /path หรือ path => prefix ด้วย origin
+ * - /path or path => prefix with EMP_API_ORIGIN
  */
 const normalizeApiPhoto = (path) => {
   if (!path || typeof path !== "string") return "";
@@ -174,24 +176,20 @@ const normalizeApiPhoto = (path) => {
   if (isProbablyBase64(p)) return `data:image/png;base64,${p}`;
   if (/^https?:\/\//i.test(p)) return p;
 
+  if (!EMP_API_ORIGIN) return "";
   if (p.startsWith("/")) return `${EMP_API_ORIGIN}${p}`;
   return `${EMP_API_ORIGIN}/${p}`;
 };
 
 const getDepartmentFromEmp = (emp) => {
-  return getField(
-    emp,
-    ["department", "dept", "department_name", "dep", "Department", "DEPARTMENT"],
-    ""
-  );
+  return getField(emp, ["department", "dept", "department_name", "dep", "Department", "DEPARTMENT"], "");
 };
 
-/** ✅ เงื่อนไข: department = Finance & Accounting */
+/** Condition: department = Finance & Accounting (loose matching) */
 const isFinanceAccountingDept = (emp) => {
   const d = (getDepartmentFromEmp(emp) || "").trim().toLowerCase();
   if (!d) return false;
 
-  // รองรับหลายคำ/การสะกด เพื่อให้ match ง่ายขึ้น
   const needles = [
     "finance & accounting",
     "finance and accounting",
@@ -200,10 +198,10 @@ const isFinanceAccountingDept = (emp) => {
     "ບັນຊີ",
     "ການເງິນ",
   ];
-  return needles.some((n) => d.includes(n.toLowerCase()));
+  return needles.some((n) => d.includes(String(n).toLowerCase()));
 };
 
-/** ✅ role ใช้จาก API = role (fallback เผื่อไม่มี field) */
+/** Role uses API field "role" (fallback) */
 const getRoleFromEmp = (emp) => {
   return getField(emp, ["role", "position", "title", "emp_position", "employee_position"], "");
 };
@@ -212,7 +210,7 @@ const getNameFromEmp = (emp) => {
   return getField(emp, ["full_name", "name", "emp_name", "employee_name", "fullname"], "");
 };
 
-/** ✅ รูป: imageprofile เป็นหลัก */
+/** Photo uses "imageprofile" primarily */
 const getRawPhotoFromEmp = (emp) => {
   return getField(
     emp,
@@ -238,10 +236,7 @@ const fetchImageAsObjectUrl = async (url) => {
   if (url.startsWith("data:image/")) return url;
 
   try {
-    const res = await fetch(url, {
-      method: "GET",
-      // credentials: "include",
-    });
+    const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`image fetch failed: ${res.status}`);
     const blob = await res.blob();
     const objUrl = URL.createObjectURL(blob);
@@ -270,28 +265,27 @@ const pickByRole = (pool, predicate) => {
 };
 
 /**
- * ✅ เติม 4 slot (1..4) แบบไม่เปลี่ยนโครงสร้าง
- * - slot1: หัวหน้า (head)
- * - slot2..4: ที่เหลือ (พยายามจับ keyword ก่อน แล้วค่อยหยิบตามลำดับ)
+ * Fill 4 slots (1..4) without changing layout structure:
+ * - slot1: Head
+ * - slot2: Accounting
+ * - slot3: Analyst
+ * - slot4: General
  */
 const fillFinanceRowsFromApi = async (financeEmps) => {
   const pool = [...financeEmps];
 
-  // slot1: Head
   const emp1 =
     pickByRole(pool, (r) => lower(r).includes("ຫົວໜ້າ")) ||
     pickByRole(pool, (r) => lower(r).includes("head")) ||
     pool.shift() ||
     null;
 
-  // slot2: Accounting
   const emp2 =
     pickByRole(pool, (r) => lower(r).includes("account")) ||
     pickByRole(pool, (r) => lower(r).includes("ບັນຊີ")) ||
     pool.shift() ||
     null;
 
-  // slot3: Finance Analyst
   const emp3 =
     pickByRole(pool, (r) => lower(r).includes("analysis")) ||
     pickByRole(pool, (r) => lower(r).includes("analyst")) ||
@@ -299,7 +293,6 @@ const fillFinanceRowsFromApi = async (financeEmps) => {
     pool.shift() ||
     null;
 
-  // slot4: General Finance
   const emp4 =
     pickByRole(pool, (r) => lower(r).includes("general")) ||
     pickByRole(pool, (r) => lower(r).includes("ທົ່ວໄປ")) ||
@@ -350,31 +343,29 @@ const fillFinanceRowsFromApi = async (financeEmps) => {
 let gsapCtx;
 
 onMounted(async () => {
-  // 1) fetch API + filter department=Finance & Accounting + เติมลง rows (โครงสร้างเดิม)
+  // 1) Fetch API and fill rows (Finance & Accounting) without changing structure
   try {
+    if (!API_BASE) throw new Error("Missing VITE_API_BASE_URL in .env");
+
     const res = await fetch(EMP_API_URL, { headers: { Accept: "application/json" } });
     if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+
     const json = await res.json();
     const all = unwrapEmployees(json);
     const financeEmps = (all || []).filter(isFinanceAccountingDept);
 
     await fillFinanceRowsFromApi(financeEmps);
   } catch (e) {
-    // ถ้า API fail: คงไว้เป็น "—" ไม่ให้หน้าแตก
+    // Keep placeholders if API fails
   }
 
-  // 2) ให้ DOM อัปเดตก่อน แล้วค่อย animate (GSAP เดิม)
+  // 2) Animate after DOM update
   await nextTick();
 
   gsapCtx = gsap.context(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    tl.from(".org-container", {
-      opacity: 0,
-      y: 48,
-      scale: 0.97,
-      duration: 0.8,
-    })
+    tl.from(".org-container", { opacity: 0, y: 48, scale: 0.97, duration: 0.8 })
       .from(".org-header-left", { x: -40, opacity: 0, duration: 0.6 }, "-=0.4")
       .from(".org-header-right", { x: 40, opacity: 0, duration: 0.6 }, "-=0.5")
       .from(".org-frame", { opacity: 0, y: 24, duration: 0.7 }, "-=0.25")
@@ -393,12 +384,7 @@ onMounted(async () => {
       )
       .from(
         ".org-avatar-ring",
-        {
-          scale: 0.5,
-          opacity: 0,
-          duration: 0.55,
-          stagger: { each: 0.08, from: "center" },
-        },
+        { scale: 0.5, opacity: 0, duration: 0.55, stagger: { each: 0.08, from: "center" } },
         "-=0.55"
       );
 
@@ -415,7 +401,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (gsapCtx) gsapCtx.revert();
 
-  // ✅ revoke objectURL กัน memory leak
   for (const u of createdObjectUrls) {
     try {
       URL.revokeObjectURL(u);
@@ -424,7 +409,6 @@ onBeforeUnmount(() => {
   createdObjectUrls.clear();
 });
 </script>
-
 <style scoped>
 .navbarcompany {
   width: 100%;

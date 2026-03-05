@@ -79,28 +79,57 @@
 
   <secondfooter />
 </template>
-
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { gsap } from "gsap";
+
 import main_navbar from "../../../components/miannavbar/main_navbar.vue";
 import cpn_navbar from "./navbarcompany/cpn_navbar.vue";
 import secondfooter from "../../../components/footer/mainfooter/secondfooter.vue";
 
 const root = ref(null);
 
-/** ✅ API */
-const EMP_API_ORIGIN = "http://175.0.198.10:3000";
-const EMP_API_URL = "http://175.0.198.10:3000/api/emp_lapnet";
+/** =========================
+ * ✅ API base from Vite .env ONLY
+ * Required in project root .env:
+ *   VITE_API_BASE_URL=http://localhost:3000
+ * ========================= */
+function resolveEnvBaseUrl() {
+  const raw = String(import.meta.env.VITE_API_BASE_URL || "").trim();
+  return raw.replace(/\/+$/, "");
+}
+
+function joinBaseAndPath(baseUrl, path) {
+  const b = String(baseUrl || "").trim().replace(/\/+$/, "");
+  const p = String(path || "");
+
+  if (!b) return p;
+
+  // Prevent double "/api" when base already ends with "/api" and path starts with "/api"
+  if (b.endsWith("/api") && /^\/api(\/|$)/i.test(p)) {
+    return b + p.replace(/^\/api/i, "");
+  }
+
+  if (!p) return b;
+  if (p.startsWith("/")) return b + p;
+  return b + "/" + p;
+}
+
+const API_BASE = resolveEnvBaseUrl();
+// Asset origin for images/files (strip trailing "/api" if user config includes it)
+const ASSET_BASE = API_BASE.endsWith("/api") ? API_BASE.slice(0, -4) : API_BASE;
+
+const EMP_API_ORIGIN = ASSET_BASE;
+const EMP_API_URL = joinBaseAndPath(API_BASE, "/api/emp_lapnet");
 
 const apiEmployees = ref([]);
 const loading = ref(true);
 const apiError = ref(null);
 
 /**
- * ✅ Mapping: old id (หน้าเดิม) -> api id
- * ✅ id หน้าเดิม "ห้ามเปลี่ยน"
- * ✅ FIX: Internal Audit (old id 7) -> api id 7
+ * Mapping: old id (existing page) -> API id
+ * Old ids must not change
+ * FIX: Internal Audit (old id 7) -> API id 7
  */
 const API_ID_BY_OLD_ID = Object.freeze({
   1: 36, // CEO
@@ -109,11 +138,11 @@ const API_ID_BY_OLD_ID = Object.freeze({
   4: 28, // Head of finance
   5: 24, // Head of IT
   6: 17, // Head of operation
-  7: 7,  // ✅ Internal Audit (fetch from API id: 7)
+  7: 7, // Internal Audit (API id: 7)
   8: 33, // Head of bc
 });
 
-/** ✅ เก็บรูปที่ fetch มาแล้ว (oldId -> objectURL หรือ dataURL) */
+/** Cache fetched photos (oldId -> objectURL or dataURL) */
 const photoObjectUrlByOldId = ref({});
 const createdObjectUrls = new Set();
 
@@ -126,13 +155,7 @@ const unwrapEmployees = (payload) => {
 };
 
 const getEmpId = (emp) => {
-  const raw =
-    emp?.id ??
-    emp?.emp_id ??
-    emp?.employee_id ??
-    emp?.EMP_ID ??
-    emp?.ID ??
-    emp?.Id;
+  const raw = emp?.id ?? emp?.emp_id ?? emp?.employee_id ?? emp?.EMP_ID ?? emp?.ID ?? emp?.Id;
   const n = Number(raw);
   return Number.isFinite(n) ? n : null;
 };
@@ -155,12 +178,11 @@ const isProbablyBase64 = (s) => {
 };
 
 /**
- * ✅ normalize รูปจาก API
- * รองรับ:
+ * Normalize image from API:
  * - data:image/...
- * - base64 string (ไม่มี prefix) => data:image/png;base64,...
+ * - base64 string (no prefix) => data:image/png;base64,...
  * - full url
- * - /path หรือ path => prefix ด้วย origin
+ * - /path or path => prefix with origin
  */
 const normalizeApiPhoto = (path) => {
   if (!path || typeof path !== "string") return "";
@@ -171,6 +193,7 @@ const normalizeApiPhoto = (path) => {
   if (isProbablyBase64(p)) return `data:image/png;base64,${p}`;
   if (/^https?:\/\//i.test(p)) return p;
 
+  if (!EMP_API_ORIGIN) return p;
   if (p.startsWith("/")) return `${EMP_API_ORIGIN}${p}`;
   return `${EMP_API_ORIGIN}/${p}`;
 };
@@ -184,14 +207,12 @@ const employeesById = computed(() => {
   return m;
 });
 
-/**
- * ✅ ดึง field รูปจาก API: "imageprofile" เป็นหลัก
- */
+/** Primary photo field from API: "imageprofile" */
 const getRawPhotoFromEmp = (emp) => {
   return getField(
     emp,
     [
-      "imageprofile", // ✅ ตัวหลัก
+      "imageprofile", // primary
       "imageProfile",
       "image_profile",
       "profileImage",
@@ -208,26 +229,21 @@ const getRawPhotoFromEmp = (emp) => {
 };
 
 const resolveEmpFromOldId = (oldId) => {
-  // ✅ ใช้ mapping ก่อน (และเผื่อ mapping ไม่มี จะ fallback เป็น oldId)
   const apiId = API_ID_BY_OLD_ID[oldId] ?? oldId;
   if (!apiId) return null;
   return employeesById.value.get(apiId) || null;
 };
 
 /**
- * ✅ fetch รูปเป็น blob แล้วสร้าง objectURL
- * - ถ้า fetch fail จะ fallback ไปใช้ URL ตรง
+ * Fetch image as blob and create objectURL
+ * - If fetch fails, fallback to direct URL
  */
 const fetchImageAsObjectUrl = async (url) => {
   if (!url) return "";
   if (url.startsWith("data:image/")) return url;
 
   try {
-    const res = await fetch(url, {
-      method: "GET",
-      // ถ้ารูปต้องใช้ cookie/session ให้เปิดบรรทัดนี้
-      // credentials: "include",
-    });
+    const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`image fetch failed: ${res.status}`);
     const blob = await res.blob();
     const objUrl = URL.createObjectURL(blob);
@@ -238,9 +254,7 @@ const fetchImageAsObjectUrl = async (url) => {
   }
 };
 
-/**
- * ✅ preload รูปให้ person.photo พร้อมใช้ใน <img :src="person.photo" />
- */
+/** Preload photos so person.photo is ready for <img :src="person.photo" /> */
 const preloadPhotos = async () => {
   const targets = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -252,7 +266,7 @@ const preloadPhotos = async () => {
     const normalized = normalizeApiPhoto(raw);
     if (!normalized) return;
 
-    // ถ้าเป็น data url/base64 ไม่ต้อง fetch
+    // Data URL/base64 does not need fetch
     if (normalized.startsWith("data:image/")) {
       photoObjectUrlByOldId.value[oldId] = normalized;
       return;
@@ -276,11 +290,11 @@ const buildPersonFromApi = (oldId, extra = {}) => {
     ? getField(emp, ["role", "position", "title", "emp_position", "employee_position"], "")
     : "";
 
-  // ✅ ใส่รูปที่ preload มาแล้ว (objectURL/dataURL/url)
+  // Use preloaded photo (objectURL/dataURL/url)
   const photo = photoObjectUrlByOldId.value?.[oldId] || "";
 
   return {
-    id: oldId, // ✅ keep old id
+    id: oldId, // keep old id
     name,
     role,
     photo,
@@ -293,8 +307,13 @@ const fetchEmployees = async () => {
   apiError.value = null;
 
   try {
+    if (!API_BASE) {
+      throw new Error("Missing VITE_API_BASE_URL in .env");
+    }
+
     const res = await fetch(EMP_API_URL, { headers: { Accept: "application/json" } });
     if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+
     const json = await res.json();
     apiEmployees.value = unwrapEmployees(json);
   } catch (err) {
@@ -305,9 +324,7 @@ const fetchEmployees = async () => {
   }
 };
 
-/**
- * ✅ baseRows สร้างจาก API (รูปมาจาก imageprofile ที่ fetch แล้ว)
- */
+/** Rows built from API (photo from imageprofile, preloaded) */
 const baseRows = computed(() => {
   const row1 = [buildPersonFromApi(1)];
   const row2 = [buildPersonFromApi(2)];
@@ -316,13 +333,13 @@ const baseRows = computed(() => {
     buildPersonFromApi(4),
     buildPersonFromApi(5),
     buildPersonFromApi(6),
-    buildPersonFromApi(7), // ✅ Internal Audit (api id 7)
+    buildPersonFromApi(7),
   ];
   const row4 = [buildPersonFromApi(8, { isRow4: true })];
   return [row1, row2, row3, row4];
 });
 
-// ✅ ตรวจโหมด 1 column (<= 640px)
+// Detect 1-column mode (<= 640px)
 const isOneColumn = ref(false);
 let mq = null;
 
@@ -330,7 +347,7 @@ const handleMQ = (e) => {
   isOneColumn.value = !!e.matches;
 };
 
-// ✅ Mobile 1 column: ย้าย id:8 ไปอยู่ใต้ id:3 แล้วรวมเป็นแถวเดียว
+// Mobile 1-column: move id=8 under id=3 in the same row
 const rowsToRender = computed(() => {
   if (!isOneColumn.value) return baseRows.value;
 
@@ -346,7 +363,7 @@ const rowsToRender = computed(() => {
   return [r1, r2, r3];
 });
 
-// initials fallback (2 ตัวแรก)
+// Initials fallback (first 2 chars)
 const getInitials = (name) => (name || "").trim().slice(0, 2) || "?";
 
 let gsapCtx;
@@ -404,11 +421,11 @@ onMounted(async () => {
     else mq.addListener(handleMQ);
   }
 
-  // ✅ load API + preload รูป (imageprofile)
+  // Load API + preload photos (imageprofile)
   await fetchEmployees();
   await preloadPhotos();
 
-  // ให้ DOM อัปเดตก่อน animate
+  // Let DOM update before animating
   await nextTick();
   runGsap();
 });
@@ -416,7 +433,7 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (gsapCtx) gsapCtx.revert();
 
-  // ✅ revoke objectURL กัน memory leak
+  // Revoke objectURLs to prevent memory leaks
   for (const u of createdObjectUrls) {
     try {
       URL.revokeObjectURL(u);
@@ -430,6 +447,7 @@ onBeforeUnmount(() => {
   }
 });
 </script>
+
 
 <style scoped>
 /* NAVBAR WRAPPER */
