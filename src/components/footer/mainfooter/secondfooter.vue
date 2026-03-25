@@ -332,8 +332,8 @@ onMounted(() => {
     text-align: justify;
 }
 .footer-wrapper {
-    color: #ffffff;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--theme-text);
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     position: relative;
     overflow: hidden;
 }
@@ -344,9 +344,10 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 26px 8vw;
-    background: linear-gradient(95deg,
-            rgba(0, 3, 41, 1) 0%,
-            rgba(0, 51, 171, 1) 46%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(240, 247, 255, 0.82));
+    border-top: 1px solid var(--theme-border);
+    border-bottom: 1px solid var(--theme-border);
+    box-shadow: 0 20px 48px rgba(18, 61, 138, 0.08);
     gap: 32px;
     position: relative;
 }
@@ -355,9 +356,10 @@ onMounted(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 60%);
-    mix-blend-mode: screen;
-    opacity: 0.6;
+    background:
+        radial-gradient(circle at top right, rgba(103, 232, 249, 0.18), transparent 55%),
+        linear-gradient(120deg, rgba(59, 130, 246, 0.05), transparent 45%);
+    opacity: 0.9;
     pointer-events: none;
 }
 
@@ -374,13 +376,13 @@ onMounted(() => {
     width: 60px;
     height: auto;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(18, 74, 156, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(12px);
-    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(232, 243, 255, 0.9));
+    box-shadow: 0 16px 32px rgba(18, 61, 138, 0.08);
 }
 
 .footer-logo img {
@@ -399,15 +401,14 @@ onMounted(() => {
 
 .footer-company-title h2 {
     font-size: 24px;
-    /* 22 -> 24 */
     margin: 2px 0 2px;
+    color: var(--theme-text);
 }
 
 .footer-company-title p {
     margin: 0;
     font-size: 14px;
-    /* 13 -> 14 */
-    opacity: 0.85;
+    color: var(--theme-text-soft);
 }
 
 .company-chip {
@@ -415,11 +416,11 @@ onMounted(() => {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    /* 11 -> 12 */
     padding: 4px 10px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.32);
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(33, 93, 248, 0.08);
+    border: 1px solid rgba(33, 93, 248, 0.14);
+    color: var(--theme-text-soft);
     text-transform: uppercase;
     letter-spacing: 0.12em;
 }
@@ -439,18 +440,19 @@ onMounted(() => {
     align-items: center;
     gap: 10px;
     font-size: 15px;
-    /* 14 -> 15 */
+    color: var(--theme-text-soft);
 }
 
 .contact-icon {
     width: 28px;
     height: 28px;
     border-radius: 10px;
-    background: rgba(0, 10, 80, 0.6);
+    background: rgba(33, 93, 248, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(33, 93, 248, 0.14);
+    color: var(--theme-blue);
 }
 
 .contact-item i {
@@ -466,15 +468,16 @@ onMounted(() => {
     background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;
+    color: #ffffff;
 }
 
 .footer-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg,
-            rgba(3, 5, 33, 0.94) 0%,
-            rgba(1, 8, 35, 0.96) 55%,
-            rgba(0, 0, 0, 0.9) 100%);
+            rgba(7, 20, 52, 0.94) 0%,
+            rgba(6, 18, 46, 0.96) 55%,
+            rgba(4, 12, 28, 0.92) 100%);
     pointer-events: none;
 }
 
@@ -509,11 +512,11 @@ onMounted(() => {
     border-radius: 26px;
     padding: 26px 24px 24px;
     background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.09),
+            rgba(255, 255, 255, 0.08),
             rgba(255, 255, 255, 0.03)) border-box;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(170, 209, 255, 0.16);
     box-shadow:
-        0 18px 45px rgba(0, 0, 0, 0.65),
+        0 18px 45px rgba(0, 0, 0, 0.45),
         0 0 0 1px rgba(255, 255, 255, 0.02) inset;
     backdrop-filter: blur(22px);
 }
@@ -521,7 +524,6 @@ onMounted(() => {
 /* Columns */
 .footer-column h3 {
     font-size: 25px;
-    /* 16 -> 18 */
     margin: 0 0 12px;
     text-transform: uppercase;
     font-weight: bold;
@@ -530,7 +532,6 @@ onMounted(() => {
 
 .footer-column p {
     font-size: 15px;
-    /* 14 -> 15 */
     line-height: 1.7;
     margin: 0 0 16px;
     opacity: 0.85;
@@ -545,14 +546,13 @@ onMounted(() => {
 
 .badge {
     font-size: 12px;
-    /* 11 -> 12 */
     padding: 4px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.32);
+    border: 1px solid rgba(170, 209, 255, 0.24);
     backdrop-filter: blur(14px);
     background: linear-gradient(135deg,
             rgba(255, 255, 255, 0.12),
-            rgba(255, 255, 255, 0.02));
+            rgba(103, 232, 249, 0.05));
 }
 
 /* Facebook Button */
@@ -560,13 +560,13 @@ onMounted(() => {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    border: none;
+    border: 1px solid rgba(170, 209, 255, 0.18);
     border-radius: 999px;
     padding: 11px 22px;
     font-size: 15px;
     /* 14 -> 15 */
     cursor: pointer;
-    background: linear-gradient(135deg, #1877f2, #3b93ff);
+    background: linear-gradient(135deg, #0f4dd4, #49c7ff);
     color: #fff;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
@@ -578,8 +578,8 @@ onMounted(() => {
 
 .btn-facebook:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
-    background: linear-gradient(135deg, #2b82f5, #4d9dff);
+    box-shadow: 0 12px 30px rgba(10, 43, 102, 0.42);
+    background: linear-gradient(135deg, #1660f0, #63d8ff);
 }
 
 /* Lists */
@@ -610,7 +610,6 @@ onMounted(() => {
 .footer-menu :deep(a),
 .dropdown-list :deep(a) {
     font-size: 15px;
-    /* 14 -> 15 */
     text-decoration: none;
     color: rgba(255, 255, 255, 0.88);
     position: relative;
@@ -667,7 +666,6 @@ onMounted(() => {
     border: none;
     padding: 0;
     font-size: 15px;
-    /* 14 -> 15 */
     color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     margin-bottom: 4px;
@@ -694,7 +692,6 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     font-size: 13px;
-    /* 12 -> 13 */
     opacity: 0.78;
 }
 
@@ -749,4 +746,3 @@ onMounted(() => {
     
 }
 </style>
-

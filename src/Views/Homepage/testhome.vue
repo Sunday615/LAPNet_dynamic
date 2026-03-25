@@ -79,41 +79,99 @@
 .herosectionhomepage {
   width: 100%;
   height: auto;
+  position: relative;
+  padding-bottom: 30px;
 }
 
 .globemockup {
   width: 100%;
   height: auto;
-  background-color: #000;
+  background-color: transparent;
 }
 
 .bloghomepage {
-  width: 100%;
+  width: min(1380px, 94vw);
   height: auto;
-  margin: 0 auto;
+  margin: 28px auto 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  border-radius: 32px;
+  border: 1px solid var(--theme-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(238, 246, 255, 0.68));
+  box-shadow: 0 28px 64px rgba(18, 61, 138, 0.08);
+  position: relative;
+  overflow: hidden;
 }
 
 .heroproduct {
-  max-width: 100%;
+  width: min(1380px, 94vw);
   height: auto;
-  margin: 0 auto;
+  margin: 28px auto 0;
+  position: relative;
+  padding: clamp(14px, 2vw, 22px);
+  border-radius: 36px;
+  border: 1px solid var(--theme-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(238, 246, 255, 0.7));
+  box-shadow: 0 28px 64px rgba(18, 61, 138, 0.08);
+  overflow: hidden;
 }
 
 .memberscroll {
-  max-width: 1380px;
+  width: min(1380px, 94vw);
   height: auto;
-  margin: 0 auto;
+  margin: 28px auto 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  border-radius: 32px;
+  border: 1px solid var(--theme-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(240, 247, 255, 0.7));
+  box-shadow: 0 28px 64px rgba(18, 61, 138, 0.08);
+  position: relative;
+  overflow: hidden;
 }
 
-.whyus {
-  max-width: 1380px;
+.whytus {
+  width: min(1380px, 94vw);
   height: auto;
-  margin: 0 auto;
+  margin: 28px auto 0;
+  position: relative;
+  padding: clamp(14px, 2vw, 22px);
+  border-radius: 36px;
+  border: 1px solid var(--theme-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(238, 246, 255, 0.7));
+  box-shadow: 0 28px 64px rgba(18, 61, 138, 0.08);
+  overflow: hidden;
 }
 
 .vision {
-  max-width: 100%;
+  width: min(1380px, 94vw);
   height: auto;
+  margin: 22px auto 0;
+  position: relative;
+}
+
+.bloghomepage::before,
+.memberscroll::before,
+.heroproduct::before,
+.whytus::before,
+.vision::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.bloghomepage::before,
+.memberscroll::before {
+  background:
+    radial-gradient(480px 180px at 12% 0%, rgba(59, 130, 246, 0.14), transparent 72%),
+    radial-gradient(460px 180px at 88% 100%, rgba(103, 232, 249, 0.14), transparent 72%);
+}
+
+.heroproduct::before,
+.whytus::before,
+.vision::before {
+  background:
+    radial-gradient(520px 160px at 50% 0%, rgba(59, 130, 246, 0.08), transparent 72%);
 }
 
 /* =========================

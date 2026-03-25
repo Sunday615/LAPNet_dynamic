@@ -361,17 +361,13 @@ onMounted(() => {
   gap: 1.5rem;
   padding: 0.75rem 2.5rem;
   height: 15vh;
-
-  background: linear-gradient(
-    95deg,
-    rgba(0, 18, 61, 1) 0%,
-    rgba(0, 51, 171, 1) 35%,
-    rgba(6, 0, 120, 1) 100%
-  );
+  background:
+    radial-gradient(540px 200px at 12% 0%, rgba(59, 130, 246, 0.14), transparent 72%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(240, 247, 255, 0.78));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(72, 164, 255, 0.85);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 22px rgba(0, 60, 200, 0.5);
+  border-bottom: 1px solid var(--theme-border);
+  box-shadow: 0 18px 40px rgba(18, 61, 138, 0.08);
 }
 
 /* LEFT: LOGO CONTAINER */
@@ -392,12 +388,12 @@ onMounted(() => {
   inset: -16px -26px;
   background: conic-gradient(
     from 210deg,
-    rgba(0, 120, 255, 0.18),
-    rgba(0, 220, 255, 0.3),
-    rgba(0, 120, 255, 0.18)
+    rgba(59, 130, 246, 0.12),
+    rgba(103, 232, 249, 0.22),
+    rgba(59, 130, 246, 0.12)
   );
   filter: blur(14px);
-  opacity: 0.9;
+  opacity: 0.75;
   pointer-events: none;
   z-index: 0;
 }
@@ -410,23 +406,22 @@ onMounted(() => {
   gap: 0.75rem;
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
-  background: linear-gradient(120deg, #050b1bdd, #050b1bcc);
-  border: 1px solid rgba(80, 170, 255, 0.9);
-  box-shadow: 0 0 20px rgba(40, 140, 255, 0.45), inset 0 0 10px rgba(0, 110, 255, 0.3);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(238, 246, 255, 0.86));
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 16px 30px rgba(18, 61, 138, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .logo-img {
   width: 40px;
   height: 40px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(90, 190, 255, 0.9));
+  filter: drop-shadow(0 10px 16px rgba(59, 130, 246, 0.18));
 }
 
 .logo-text-main {
   font-size: 1.1rem;
   letter-spacing: 0.15em;
-
-  color: #eef5ff;
+  color: var(--theme-text);
   font-weight: 600;
   line-height: 1;
 }
@@ -435,7 +430,7 @@ onMounted(() => {
   font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.25em;
-  color: rgba(158, 205, 255, 0.95);
+  color: var(--theme-text-dim);
   margin-top: 2px;
 }
 
@@ -461,7 +456,7 @@ onMounted(() => {
   padding: 0.45rem 0.9rem;
   font-size: 1rem;
   text-transform: uppercase;
-  color: #e5f0ff;
+  color: var(--theme-text-soft);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -484,9 +479,9 @@ onMounted(() => {
 
 /* Hover effects */
 .nav-item:hover {
-  background: radial-gradient(circle at top, rgba(40, 130, 255, 0.35), transparent 65%);
-  color: #ffffff;
-  text-shadow: 0 0 8px rgba(120, 200, 255, 0.6);
+  background: radial-gradient(circle at top, rgba(59, 130, 246, 0.14), transparent 68%);
+  color: var(--theme-text);
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.15);
 }
 
 /* DROPDOWN MENU */
@@ -513,16 +508,16 @@ onMounted(() => {
   padding: 0;
   margin: 0;
   width: 400px;
-  background: rgba(5, 11, 27, 0.95);
-  border: 1px solid rgba(80, 170, 255, 0.5);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--theme-border);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 80, 200, 0.3);
+  box-shadow: 0 24px 48px rgba(18, 61, 138, 0.12);
   backdrop-filter: blur(20px);
   overflow: hidden;
 }
 
 .dropdown-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(18, 74, 156, 0.08);
 }
 .dropdown-item:last-child {
   border-bottom: none;
@@ -543,7 +538,7 @@ onMounted(() => {
 .dropdown-link {
   display: block;
   padding: 12px 20px;
-  color: #b0d0ff;
+  color: var(--theme-text-soft);
   text-decoration: none;
   font-size: 1rem;
   text-transform: uppercase;
@@ -554,10 +549,10 @@ onMounted(() => {
 }
 
 .dropdown-link:hover {
-  background: linear-gradient(90deg, rgba(0, 60, 150, 0.4), transparent);
-  color: #fff;
+  background: linear-gradient(90deg, rgba(33, 93, 248, 0.1), transparent);
+  color: var(--theme-text);
   padding-left: 28px;
-  text-shadow: 0 0 5px rgba(0, 200, 255, 0.8);
+  text-shadow: 0 0 5px rgba(59, 130, 246, 0.12);
 }
 
 .dropdown-link:hover .dropdown-icon {
@@ -571,7 +566,7 @@ onMounted(() => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #00d4ff;
+  background: linear-gradient(180deg, #215df8, #67e8f9);
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -582,23 +577,22 @@ onMounted(() => {
 
 /* CTA BUTTON */
 .nav-cta {
-  background: linear-gradient(135deg, #3a9bff, #7ce3ff);
-  color: #021325;
+  background: linear-gradient(135deg, #0f4dd4, #5fdcff);
+  color: #f8fbff;
   font-weight: 600;
-  box-shadow: 0 0 22px rgba(100, 190, 255, 0.7);
+  box-shadow: 0 14px 24px rgba(21, 76, 184, 0.18);
 }
 .nav-cta:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 0 26px rgba(120, 205, 255, 0.9);
+  box-shadow: 0 16px 28px rgba(21, 76, 184, 0.24);
 }
 
 /* HAMBURGER (icon + Menu label) */
 .nav-toggle {
   display: none; /* show on mobile only */
-  border: none;
-  background: rgba(5, 11, 27, 0.45);
-  border: 1px solid rgba(80, 170, 255, 0.55);
-  color: #e5f0ff;
+  border: 1px solid var(--theme-border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--theme-text);
   cursor: pointer;
 
   padding: 0.55rem 0.85rem;
@@ -608,14 +602,14 @@ onMounted(() => {
   justify-content: center;
   gap: 0.5rem;
 
-  box-shadow: 0 0 18px rgba(40, 140, 255, 0.35), inset 0 0 10px rgba(0, 110, 255, 0.18);
+  box-shadow: 0 14px 24px rgba(18, 61, 138, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.86);
 
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 22px rgba(120, 205, 255, 0.55), inset 0 0 12px rgba(0, 110, 255, 0.22);
+  box-shadow: 0 18px 28px rgba(18, 61, 138, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 .nav-toggle-icon {

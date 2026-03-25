@@ -21,17 +21,17 @@
     --fs-lapnet: clamp(1.4rem , 3vw , 2rem);
     --color-second: #3b82f6;
 
-    --theme-bg-deep: #020816;
-    --theme-bg-main: #071224;
-    --theme-bg-elevated: #0c1832;
-    --theme-surface: rgba(8, 18, 44, 0.66);
-    --theme-surface-strong: rgba(8, 18, 44, 0.84);
-    --theme-surface-soft: rgba(10, 22, 48, 0.48);
-    --theme-border: rgba(119, 173, 255, 0.18);
-    --theme-border-strong: rgba(124, 196, 255, 0.34);
-    --theme-text: #edf5ff;
-    --theme-text-soft: rgba(221, 234, 255, 0.74);
-    --theme-text-dim: rgba(160, 183, 221, 0.62);
+    --theme-bg-deep: #0a1838;
+    --theme-bg-main: #ffffff;
+    --theme-bg-elevated: #eef6ff;
+    --theme-surface: rgba(255, 255, 255, 0.74);
+    --theme-surface-strong: rgba(255, 255, 255, 0.9);
+    --theme-surface-soft: rgba(236, 245, 255, 0.84);
+    --theme-border: rgba(18, 74, 156, 0.14);
+    --theme-border-strong: rgba(30, 106, 219, 0.28);
+    --theme-text: #071933;
+    --theme-text-soft: rgba(14, 39, 78, 0.74);
+    --theme-text-dim: rgba(41, 72, 118, 0.58);
     --theme-blue: #3b82f6;
     --theme-blue-strong: #215df8;
     --theme-cyan: #67e8f9;
@@ -50,17 +50,17 @@
 
 html {
     scroll-behavior: smooth;
-    background: var(--theme-bg-deep);
+    background: #f6fbff;
 }
 
 body {
     margin: 0;
     color: var(--theme-text);
     background:
-        radial-gradient(1200px 760px at 12% 0%, rgba(59, 130, 246, 0.18), transparent 60%),
-        radial-gradient(1000px 700px at 88% 8%, rgba(103, 232, 249, 0.1), transparent 58%),
-        radial-gradient(1200px 820px at 50% 120%, rgba(17, 55, 144, 0.28), transparent 62%),
-        linear-gradient(180deg, #030916 0%, #061124 38%, #040c1d 100%);
+        radial-gradient(1100px 760px at 12% 0%, rgba(59, 130, 246, 0.16), transparent 60%),
+        radial-gradient(900px 620px at 88% 8%, rgba(103, 232, 249, 0.12), transparent 55%),
+        radial-gradient(900px 700px at 50% 120%, rgba(28, 92, 201, 0.16), transparent 58%),
+        linear-gradient(180deg, #fbfdff 0%, #f5f9ff 42%, #edf4ff 100%);
     background-attachment: fixed;
 }
 
@@ -69,8 +69,8 @@ a {
 }
 
 ::selection {
-    background: rgba(103, 232, 249, 0.28);
-    color: #ffffff;
+    background: rgba(59, 130, 246, 0.2);
+    color: #071933;
 }
 
 ::-webkit-scrollbar {
@@ -79,17 +79,16 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(6, 12, 25, 0.9);
+    background: rgba(227, 238, 252, 0.92);
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    border: 2px solid rgba(6, 12, 25, 0.9);
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.78), rgba(103, 232, 249, 0.52));
+    border: 2px solid rgba(227, 238, 252, 0.92);
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.72), rgba(103, 232, 249, 0.48));
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(59, 130, 246, 0.92), rgba(103, 232, 249, 0.7));
+    background: linear-gradient(180deg, rgba(59, 130, 246, 0.86), rgba(103, 232, 249, 0.62));
 }
-
 
