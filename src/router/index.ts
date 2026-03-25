@@ -7,46 +7,46 @@ import {
   encodePathToken,
 } from "../utils/pathToken";
 
-import product1 from "../Views/products/product1.vue";
-import product2 from "../Views/products/product2.vue";
-import product3 from "../Views/products/product3.vue";
-import product4 from "../Views/products/product4.vue";
+const product1 = () => import("../Views/products/product1.vue");
+const product2 = () => import("../Views/products/product2.vue");
+const product3 = () => import("../Views/products/product3.vue");
+const product4 = () => import("../Views/products/product4.vue");
 
-import membercardATM from "../Views/member/membercard/membercardATM.vue";
-import membermobile_banking from "../Views/member/membercard/membermobile_banking.vue";
-import membercrossborder from "../Views/member/membercard/membercrossborder.vue";
-import Joinus from "../Views/joinus/joinus.vue";
+const membercardATM = () => import("../Views/member/membercard/membercardATM.vue");
+const membermobile_banking = () => import("../Views/member/membercard/membermobile_banking.vue");
+const membercrossborder = () => import("../Views/member/membercard/membercrossborder.vue");
+const Joinus = () => import("../Views/joinus/joinus.vue");
 
-import Board_director from "../Views/Aboutus/board_director/board_director.vue";
-import Role from "../Views/Aboutus/role/role.vue";
-import Vision from "../Views/Aboutus/vision/vision.vue";
-import History from "../Views/Aboutus/history/history.vue";
-import Contactus from "../Views/contact/contactus.vue";
-import Operationstructure from "../Views/Aboutus/companystructure/operationstructure.vue";
-import It from "../Views/Aboutus/companystructure/it.vue";
-import Ceo from "../Views/Aboutus/companystructure/ceo.vue";
+const Board_director = () => import("../Views/Aboutus/board_director/board_director.vue");
+const Role = () => import("../Views/Aboutus/role/role.vue");
+const Vision = () => import("../Views/Aboutus/vision/vision.vue");
+const History = () => import("../Views/Aboutus/history/history.vue");
+const Contactus = () => import("../Views/contact/contactus.vue");
+const Operationstructure = () => import("../Views/Aboutus/companystructure/operationstructure.vue");
+const It = () => import("../Views/Aboutus/companystructure/it.vue");
+const Ceo = () => import("../Views/Aboutus/companystructure/ceo.vue");
 
-import Finance from "../Views/Aboutus/companystructure/finance.vue";
-import Office from "../Views/Aboutus/companystructure/office.vue";
-import Audit from "../Views/Aboutus/companystructure/audit.vue";
+const Finance = () => import("../Views/Aboutus/companystructure/finance.vue");
+const Office = () => import("../Views/Aboutus/companystructure/office.vue");
+const Audit = () => import("../Views/Aboutus/companystructure/audit.vue");
 
-import Bloggridview from "../Views/blog/bloggrid/bloggridview.vue";
-import Blogdetail from "../Views/blog/blogdetail/blogdetail.vue";
+const Bloggridview = () => import("../Views/blog/bloggrid/bloggridview.vue");
+const Blogdetail = () => import("../Views/blog/blogdetail/blogdetail.vue");
 
-import Product6 from "../Views/products/product6.vue";
-import Boarddirector_audit from "../Views/Aboutus/board_director/boarddirector_audit.vue";
-import Boarddirector_policy from "../Views/Aboutus/board_director/boarddirector_policy.vue";
-import Boarddirector_develop from "../Views/Aboutus/board_director/boarddirector_develop.vue";
-import Boarddirector_risk from "../Views/Aboutus/board_director/boarddirector_risk.vue";
-import Productqrpayment from "../Views/products/productqrpayment.vue";
-import Companystructureimage from "../Views/Aboutus/companystructure/companystructureimage.vue";
-import Companystructure from "../Views/Aboutus/companystructure/companystructure.vue";
+const Product6 = () => import("../Views/products/product6.vue");
+const Boarddirector_audit = () => import("../Views/Aboutus/board_director/boarddirector_audit.vue");
+const Boarddirector_policy = () => import("../Views/Aboutus/board_director/boarddirector_policy.vue");
+const Boarddirector_develop = () => import("../Views/Aboutus/board_director/boarddirector_develop.vue");
+const Boarddirector_risk = () => import("../Views/Aboutus/board_director/boarddirector_risk.vue");
+const Productqrpayment = () => import("../Views/products/productqrpayment.vue");
+const Companystructureimage = () => import("../Views/Aboutus/companystructure/companystructureimage.vue");
+const Companystructure = () => import("../Views/Aboutus/companystructure/companystructure.vue");
 
-import allproduct from "../Views/products/allproduct.vue";
-import atmmockup from "../components/mockup/atmmockup.vue";
-import testhome from "../Views/Homepage/testhome.vue";
-import allbox from "../Views/Aboutus/companystructure/allbox.vue";
-import testinfocomponent from "../Views/products/procomponent/testinfocomponent.vue";
+const allproduct = () => import("../Views/products/allproduct.vue");
+const atmmockup = () => import("../components/mockup/atmmockup.vue");
+const testhome = () => import("../Views/Homepage/testhome.vue");
+const allbox = () => import("../Views/Aboutus/companystructure/allbox.vue");
+const testinfocomponent = () => import("../Views/products/procomponent/testinfocomponent.vue");
 
 declare global {
   interface Window {

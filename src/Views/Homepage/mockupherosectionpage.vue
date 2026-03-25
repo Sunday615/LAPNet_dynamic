@@ -125,14 +125,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, watch, nextTick, computed } from "vue"
+import { defineAsyncComponent, ref, reactive, onMounted, onBeforeUnmount, watch, nextTick, computed } from "vue"
 import gsap from "gsap"
 
 import homepage_sidebar from "../../components/sidebar/homepage_sidebar.vue"
-import atmmockup from "../../components/mockup/atmmockup.vue"
 import productDropdown from "../../components/dropdown-homepage/product-dropdown.vue"
 import memberdropdown from "../../components/dropdown-homepage/memberdropdown.vue"
 import aboutusdropdown from "../../components/dropdown-homepage/aboutusdropdown.vue"
+
+const atmmockup = defineAsyncComponent(() => import("../../components/mockup/atmmockup.vue"))
 onMounted(() => {
   window.scrollTo({
     top: 0,

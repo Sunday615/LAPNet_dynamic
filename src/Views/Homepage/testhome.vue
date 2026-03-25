@@ -125,9 +125,7 @@
 
 <script setup>
 import mockupherosectionpage from "./mockupherosectionpage.vue"
-import atmmockup from "../../components/mockup/atmmockup.vue"
 import bloghomepage from "../../components/blog/hompage/bloghomepage.vue"
-import main_navbar from "../../components/miannavbar/main_navbar.vue"
 import SwitchSplit from "./visionherosection.vue"
 import whychooseus from "./whychooseus.vue"
 import allmemberscrolling from "../../components/swiper/memberscrolling/allmemberscrolling.vue"

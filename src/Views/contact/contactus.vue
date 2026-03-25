@@ -140,7 +140,7 @@ onMounted(() => {
     background-image: linear-gradient(135deg,
             rgba(5, 5, 70, 0.85),
             rgba(0, 0, 0, 0.6)),
-        url(../../assets/Contact/contactnav.webp);
+        url("/contact/contactnav.webp");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -638,4 +638,3 @@ onMounted(() => {
     }
 }
 </style>
-

@@ -6,7 +6,37 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
-import * as THREE from "three";
+import {
+  AmbientLight,
+  BufferAttribute,
+  BufferGeometry,
+  CanvasTexture,
+  CatmullRomCurve3,
+  Clock,
+  Color,
+  DirectionalLight,
+  Group,
+  Line,
+  LineBasicMaterial,
+  LineDashedMaterial,
+  LinearFilter,
+  MathUtils,
+  NoToneMapping,
+  NormalBlending,
+  PerspectiveCamera,
+  Points,
+  PointsMaterial,
+  Quaternion,
+  SRGBColorSpace,
+  Scene,
+  ShaderMaterial,
+  Sprite,
+  SpriteMaterial,
+  TextureLoader,
+  Vector3,
+  WebGLRenderer,
+} from "three";
+import type { Texture } from "three";
 import gsap from "gsap";
 
 type Endpoint = {
@@ -451,9 +481,9 @@ const nodes = computed<Endpoint[]>(() => {
   return DEFAULT_NODES;
 });
 
-let renderer: THREE.WebGLRenderer | null = null;
-let scene: THREE.Scene | null = null;
-let camera: THREE.PerspectiveCamera | null = null;
+let renderer: WebGLRenderer | null = null;
+let scene: Scene | null = null;
+let camera: PerspectiveCamera | null = null;
 
 let raf = 0;
 let ro: ResizeObserver | null = null;
@@ -477,7 +507,7 @@ function easeInOutCubic(x: number) {
   const t = clamp(x, 0, 1);
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
-function angleBetween(a: THREE.Vector3, b: THREE.Vector3) {
+function angleBetween(a: Vector3, b: Vector3) {
   const d = clamp(a.clone().normalize().dot(b.clone().normalize()), -1, 1);
   return Math.acos(d);
 }
@@ -485,14 +515,14 @@ function angleBetween(a: THREE.Vector3, b: THREE.Vector3) {
 function latLonToVec3(lat: number, lon: number, r: number) {
   const phi = (90 - lat) * (Math.PI / 180);
   const theta = (lon + 180) * (Math.PI / 180);
-  return new THREE.Vector3(
+  return new Vector3(
     -r * Math.sin(phi) * Math.cos(theta),
     r * Math.cos(phi),
     r * Math.sin(phi) * Math.sin(theta)
   );
 }
 
-function vec3ToUV(p: THREE.Vector3) {
+function vec3ToUV(p: Vector3) {
   const n = p.clone().normalize();
   const u = 0.5 + Math.atan2(n.z, n.x) / (2 * Math.PI);
   const v = 0.5 - Math.asin(n.y) / Math.PI;
@@ -500,7 +530,7 @@ function vec3ToUV(p: THREE.Vector3) {
 }
 
 function fibonacciSphere(n: number, r: number) {
-  const pts: THREE.Vector3[] = [];
+  const pts: Vector3[] = [];
   const golden = Math.PI * (3 - Math.sqrt(5));
   for (let i = 0; i < n; i++) {
     const y = 1 - (i / (n - 1)) * 2;
@@ -508,7 +538,7 @@ function fibonacciSphere(n: number, r: number) {
     const theta = golden * i;
     const x = Math.cos(theta) * rr;
     const z = Math.sin(theta) * rr;
-    pts.push(new THREE.Vector3(x, y, z).multiplyScalar(r));
+    pts.push(new Vector3(x, y, z).multiplyScalar(r));
   }
   return pts;
 }
@@ -550,26 +580,26 @@ async function loadLandMaskSampler(url: string) {
   }
 }
 
-function pickSpreadPoints(count: number, candidates: THREE.Vector3[], minAngleRad: number) {
+function pickSpreadPoints(count: number, candidates: Vector3[], minAngleRad: number) {
   if (candidates.length === 0) return [];
 
   let pool = candidates;
   if (lowPower && pool.length > 800) {
-    const tmp: THREE.Vector3[] = [];
+    const tmp: Vector3[] = [];
     for (let i = 0; i < 800; i++) tmp.push(pool[(Math.random() * pool.length) | 0]!);
     pool = tmp;
   }
 
-  let best: THREE.Vector3[] = [];
+  let best: Vector3[] = [];
   let bestMin = -1;
 
   const tries = lowPower ? 4 : 10;
   for (let t = 0; t < tries; t++) {
-    const chosen: THREE.Vector3[] = [];
+    const chosen: Vector3[] = [];
     chosen.push(pool[Math.floor(Math.random() * pool.length)]!);
 
     while (chosen.length < count) {
-      let bestCand: THREE.Vector3 | null = null;
+      let bestCand: Vector3 | null = null;
       let bestScore = -1;
 
       for (const c of pool) {
@@ -626,16 +656,16 @@ function makeCircleTexture(size = 64) {
   ctx.fillRect(0, 0, size, size);
   ctx.globalCompositeOperation = "source-over";
 
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace;
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
   tex.generateMipmaps = false;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = LinearFilter;
+  tex.magFilter = LinearFilter;
   return tex;
 }
 
-function makeDotGlobe(points: THREE.Vector3[]) {
-  const geom = new THREE.BufferGeometry();
+function makeDotGlobe(points: Vector3[]) {
+  const geom = new BufferGeometry();
   const pos = new Float32Array(points.length * 3);
   const seed = new Float32Array(points.length);
   const scale = new Float32Array(points.length);
@@ -648,18 +678,18 @@ function makeDotGlobe(points: THREE.Vector3[]) {
     scale[i] = 0.65 + Math.random() * 1.4;
   }
 
-  geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  geom.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
-  geom.setAttribute("aScale", new THREE.BufferAttribute(scale, 1));
+  geom.setAttribute("position", new BufferAttribute(pos, 3));
+  geom.setAttribute("aSeed", new BufferAttribute(seed, 1));
+  geom.setAttribute("aScale", new BufferAttribute(scale, 1));
 
-  const mat = new THREE.ShaderMaterial({
+  const mat = new ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending,
+    blending: NormalBlending,
     uniforms: {
       uTime: { value: 0 },
       uPulseSpeed: { value: props.dotPulseSpeed },
-      uColor: { value: new THREE.Color(CFG.dotColor) },
+      uColor: { value: new Color(CFG.dotColor) },
       uSize: { value: lowPower ? 12.0 : 18.0 },
     },
     vertexShader: `
@@ -714,7 +744,7 @@ function makeDotGlobe(points: THREE.Vector3[]) {
     `,
   });
 
-  const pts = new THREE.Points(geom, mat);
+  const pts = new Points(geom, mat);
 
   disposers.push(() => {
     geom.dispose();
@@ -725,7 +755,7 @@ function makeDotGlobe(points: THREE.Vector3[]) {
 }
 
 function makeStarfield(count = 1200, radius = 18) {
-  const g = new THREE.BufferGeometry();
+  const g = new BufferGeometry();
   const p = new Float32Array(count * 3);
 
   for (let i = 0; i < count; i++) {
@@ -740,16 +770,16 @@ function makeStarfield(count = 1200, radius = 18) {
     p[i * 3 + 2] = rr * Math.sin(phi) * Math.sin(theta);
   }
 
-  g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-  const m = new THREE.PointsMaterial({
+  g.setAttribute("position", new BufferAttribute(p, 3));
+  const m = new PointsMaterial({
     size: 0.02,
     opacity: 0.6,
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending,
+    blending: NormalBlending,
   });
 
-  const s = new THREE.Points(g, m);
+  const s = new Points(g, m);
   disposers.push(() => {
     g.dispose();
     m.dispose();
@@ -758,26 +788,26 @@ function makeStarfield(count = 1200, radius = 18) {
 }
 
 function makeLogoPin(
-  worldPos: THREE.Vector3,
-  normal: THREE.Vector3,
-  logoTex: THREE.Texture | undefined,
+  worldPos: Vector3,
+  normal: Vector3,
+  logoTex: Texture | undefined,
   size = 0.2,
   lift = 0.07,
   renderOrder = 0
 ) {
-  const group = new THREE.Group();
+  const group = new Group();
 
   if (logoTex) {
-    const mat = new THREE.SpriteMaterial({
+    const mat = new SpriteMaterial({
       map: logoTex,
       transparent: true,
       opacity: 1,
       depthWrite: false,
       alphaTest: 0.35,
-      blending: THREE.NormalBlending,
+      blending: NormalBlending,
     });
 
-    const spr = new THREE.Sprite(mat);
+    const spr = new Sprite(mat);
     spr.scale.set(size, size, 1);
     spr.position.copy(normal.clone().multiplyScalar(lift));
     spr.renderOrder = renderOrder;
@@ -792,27 +822,27 @@ function makeLogoPin(
 }
 
 function makeHubMarker(
-  worldPos: THREE.Vector3,
-  normal: THREE.Vector3,
-  circleTex: THREE.Texture,
+  worldPos: Vector3,
+  normal: Vector3,
+  circleTex: Texture,
   renderOrder = 0
 ) {
-  const mat = new THREE.SpriteMaterial({
+  const mat = new SpriteMaterial({
     map: circleTex,
-    color: new THREE.Color("#ffffff"),
+    color: new Color("#ffffff"),
     transparent: true,
     opacity: 0.95,
-    blending: THREE.NormalBlending,
+    blending: NormalBlending,
     depthWrite: false,
     alphaTest: 0.15,
   });
 
-  const spr = new THREE.Sprite(mat);
+  const spr = new Sprite(mat);
   spr.scale.set(0.10, 0.10, 1);
   spr.position.copy(normal.clone().multiplyScalar(0.10));
   spr.renderOrder = renderOrder;
 
-  const group = new THREE.Group();
+  const group = new Group();
   group.add(spr);
   group.position.copy(worldPos.clone().add(normal.clone().multiplyScalar(0.02)));
   group.renderOrder = renderOrder;
@@ -822,17 +852,17 @@ function makeHubMarker(
 }
 
 function makeHubRoute(
-  hubPos: THREE.Vector3,
-  nodePos: THREE.Vector3,
-  circleTex: THREE.Texture,
+  hubPos: Vector3,
+  nodePos: Vector3,
+  circleTex: Texture,
   color: string
 ) {
   const a = hubPos.clone().normalize();
   const b = nodePos.clone().normalize();
-  const axis = new THREE.Vector3().crossVectors(a, b).normalize();
+  const axis = new Vector3().crossVectors(a, b).normalize();
   const angle = Math.acos(clamp(a.dot(b), -1, 1));
 
-  const pts: THREE.Vector3[] = [];
+  const pts: Vector3[] = [];
   const steps = lowPower ? 80 : 140;
 
   for (let i = 0; i <= steps; i++) {
@@ -843,42 +873,42 @@ function makeHubRoute(
     pts.push(v);
   }
 
-  const curve = new THREE.CatmullRomCurve3(pts);
+  const curve = new CatmullRomCurve3(pts);
   const ptsFwd = curve.getPoints(lowPower ? 140 : 260);
   const ptsRev = [...ptsFwd].reverse();
 
-  const baseGeom = new THREE.BufferGeometry().setFromPoints(ptsFwd);
-  const baseMat = new THREE.LineDashedMaterial({
-    color: new THREE.Color(color),
+  const baseGeom = new BufferGeometry().setFromPoints(ptsFwd);
+  const baseMat = new LineDashedMaterial({
+    color: new Color(color),
     transparent: true,
     opacity: props.baseLineOpacity!,
     dashSize: 0.10,
     gapSize: 0.06,
   });
-  const baseLine = new THREE.Line(baseGeom, baseMat);
+  const baseLine = new Line(baseGeom, baseMat);
   baseLine.computeLineDistances();
 
-  const outGeom = new THREE.BufferGeometry().setFromPoints(ptsFwd);
+  const outGeom = new BufferGeometry().setFromPoints(ptsFwd);
   outGeom.setDrawRange(0, 2);
-  const outMat = new THREE.LineBasicMaterial({
-    color: new THREE.Color(color),
+  const outMat = new LineBasicMaterial({
+    color: new Color(color),
     transparent: true,
     opacity: 0,
-    blending: THREE.NormalBlending,
+    blending: NormalBlending,
     depthWrite: false,
   });
-  const outLine = new THREE.Line(outGeom, outMat);
+  const outLine = new Line(outGeom, outMat);
 
-  const inGeom = new THREE.BufferGeometry().setFromPoints(ptsRev);
+  const inGeom = new BufferGeometry().setFromPoints(ptsRev);
   inGeom.setDrawRange(0, 2);
-  const inMat = new THREE.LineBasicMaterial({
-    color: new THREE.Color(color),
+  const inMat = new LineBasicMaterial({
+    color: new Color(color),
     transparent: true,
     opacity: 0,
-    blending: THREE.NormalBlending,
+    blending: NormalBlending,
     depthWrite: false,
   });
-  const inLine = new THREE.Line(inGeom, inMat);
+  const inLine = new Line(inGeom, inMat);
 
   const trailCount = Math.max(
     2,
@@ -886,27 +916,27 @@ function makeHubRoute(
   );
   const spacing = clamp(props.flowTrailSpacing ?? 0.06, 0.01, lowPower ? 0.12 : 0.2);
 
-  type TrailDot = { spr: THREE.Sprite; mat: THREE.SpriteMaterial; offset: number; base: number };
+  type TrailDot = { spr: Sprite; mat: SpriteMaterial; offset: number; base: number };
   const makeTrail = () => {
     const dots: TrailDot[] = [];
     for (let i = 0; i < trailCount; i++) {
       const isHead = i === 0;
-      const mat = new THREE.SpriteMaterial({
+      const mat = new SpriteMaterial({
         map: circleTex,
-        color: new THREE.Color(color),
+        color: new Color(color),
         transparent: true,
         opacity: 0,
-        blending: THREE.NormalBlending,
+        blending: NormalBlending,
         depthWrite: false,
         alphaTest: 0.15,
       });
 
-      const spr = new THREE.Sprite(mat);
+      const spr = new Sprite(mat);
       const base = isHead ? 0.10 : 0.075;
       spr.scale.set(base, base, 1);
       dots.push({ spr, mat, offset: i * spacing, base });
     }
-    const group = new THREE.Group();
+    const group = new Group();
     dots.forEach((d) => group.add(d.spr));
     return { dots, group };
   };
@@ -914,7 +944,7 @@ function makeHubRoute(
   const outTrail = makeTrail();
   const inTrail = makeTrail();
 
-  const updateTrail = (dots: TrailDot[], curvePts: THREE.Vector3[], u: number, fade: number) => {
+  const updateTrail = (dots: TrailDot[], curvePts: Vector3[], u: number, fade: number) => {
     for (let i = 0; i < dots.length; i++) {
       const d = dots[i]!;
       const uu = u - d.offset;
@@ -1002,7 +1032,7 @@ onMounted(async () => {
   const reduce = reduceMotion ?? false;
 
   try {
-    renderer = new THREE.WebGLRenderer({
+    renderer = new WebGLRenderer({
       canvas: canvas.value,
       antialias: !lowPower,
       alpha: true,
@@ -1014,36 +1044,36 @@ onMounted(async () => {
   }
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowPower ? 1.5 : 2));
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.outputColorSpace = SRGBColorSpace;
+  renderer.toneMapping = NoToneMapping;
   renderer.setClearColor(0x000000, 0);
 
-  scene = new THREE.Scene();
+  scene = new Scene();
 
-  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 80);
+  camera = new PerspectiveCamera(45, 1, 0.1, 80);
   camera.position.set(0, 0, 3.7);
 
-  scene.add(new THREE.AmbientLight(new THREE.Color("#ffffff"), 0.35));
-  const key = new THREE.DirectionalLight(new THREE.Color("#ffffff"), 1.0);
+  scene.add(new AmbientLight(new Color("#ffffff"), 0.35));
+  const key = new DirectionalLight(new Color("#ffffff"), 1.0);
   key.position.set(3, 2, 3);
   scene.add(key);
 
   if (props.showStars && !lowPower) scene.add(makeStarfield());
 
-  const globe = new THREE.Group();
+  const globe = new Group();
   scene.add(globe);
 
   const startLat = props.startLat ?? (props.startWithHubFront ? props.hubLat! : props.focusLat!);
   const startLon = props.startLon ?? (props.startWithHubFront ? props.hubLon! : props.focusLon!);
 
   const startV = latLonToVec3(startLat, startLon, 1).normalize();
-  const qStart = new THREE.Quaternion().setFromUnitVectors(startV, new THREE.Vector3(0, 0, 1));
+  const qStart = new Quaternion().setFromUnitVectors(startV, new Vector3(0, 0, 1));
   globe.quaternion.copy(qStart);
 
   const sampleLand = props.landMaskUrl ? await loadLandMaskSampler(props.landMaskUrl) : null;
 
   const candidates = fibonacciSphere(CFG.dots * (sampleLand ? 2 : 1), CFG.radius);
-  const dotPoints: THREE.Vector3[] = [];
+  const dotPoints: Vector3[] = [];
 
   for (const p of candidates) {
     if (!sampleLand) {
@@ -1062,23 +1092,23 @@ onMounted(async () => {
   const circleTex = makeCircleTexture(64);
   disposers.push(() => circleTex.dispose());
 
-const loader = new THREE.TextureLoader();
+const loader = new TextureLoader();
 // Allow cross-origin textures (server must send CORS headers for images)
 (loader as any).setCrossOrigin?.("anonymous");
   const urls = Array.from(
     new Set([hub.value.logo, ...nodes.value.map((n) => n.logo)].filter(Boolean))
   );
 
-  const texMap = new Map<string, THREE.Texture>();
+  const texMap = new Map<string, Texture>();
 
   await Promise.all(
     urls.map(async (url) => {
       try {
         const tex = await loader.loadAsync(url);
-        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.colorSpace = SRGBColorSpace;
         tex.generateMipmaps = false;
-        tex.minFilter = THREE.LinearFilter;
-        tex.magFilter = THREE.LinearFilter;
+        tex.minFilter = LinearFilter;
+        tex.magFilter = LinearFilter;
         tex.anisotropy = 1;
         texMap.set(url, tex);
         disposers.push(() => tex.dispose());
@@ -1089,7 +1119,7 @@ const loader = new THREE.TextureLoader();
   const hubVec = latLonToVec3(hub.value.lat, hub.value.lon, CFG.radius);
   const hubN = hubVec.clone().normalize();
 
-  const routesGroup = new THREE.Group();
+  const routesGroup = new Group();
   globe.add(routesGroup);
 
   const hubTex = texMap.get(hub.value.logo);
@@ -1325,7 +1355,7 @@ const loader = new THREE.TextureLoader();
   document.addEventListener("visibilitychange", onVis);
   disposers.push(() => document.removeEventListener("visibilitychange", onVis));
 
-  const clock = new THREE.Clock();
+  const clock = new Clock();
 
   const tick = () => {
     if (!running) return;
@@ -1369,10 +1399,10 @@ const loader = new THREE.TextureLoader();
     const baseSpin = reduce ? 0.03 : 0.07;
     globe.rotation.y += 0.002 * baseSpin;
 
-    current.rx = THREE.MathUtils.lerp(current.rx, target.rx, 0.05);
-    current.ry = THREE.MathUtils.lerp(current.ry, target.ry, 0.05);
-    globe.rotation.x = THREE.MathUtils.lerp(globe.rotation.x, current.rx, 0.03);
-    globe.rotation.y = THREE.MathUtils.lerp(globe.rotation.y, globe.rotation.y + current.ry * 0.01, 0.03);
+    current.rx = MathUtils.lerp(current.rx, target.rx, 0.05);
+    current.ry = MathUtils.lerp(current.ry, target.ry, 0.05);
+    globe.rotation.x = MathUtils.lerp(globe.rotation.x, current.rx, 0.03);
+    globe.rotation.y = MathUtils.lerp(globe.rotation.y, globe.rotation.y + current.ry * 0.01, 0.03);
 
     renderer.render(scene, camera);
   };

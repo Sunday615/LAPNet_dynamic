@@ -1067,22 +1067,32 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
   mix-blend-mode: screen;
   pointer-events: none;
 }
 .feature-card--qr::before {
-  background-image: url("../../assets/landing/qr-bg.png");
-  opacity: 0.18;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(147, 197, 253, 0.5), transparent 28%),
+    linear-gradient(135deg, rgba(59, 130, 246, 0.28), transparent 58%),
+    repeating-linear-gradient(0deg, rgba(191, 219, 254, 0.12) 0 2px, transparent 2px 18px),
+    repeating-linear-gradient(90deg, rgba(191, 219, 254, 0.12) 0 2px, transparent 2px 18px);
+  opacity: 0.42;
 }
 .feature-card--fx::before {
-  background-image: url("../../assets/landing/currency-bg.png");
-  opacity: 0.22;
+  background:
+    radial-gradient(circle at 78% 20%, rgba(110, 231, 183, 0.34), transparent 26%),
+    radial-gradient(circle at 24% 76%, rgba(125, 211, 252, 0.26), transparent 22%),
+    linear-gradient(160deg, rgba(16, 185, 129, 0.22), transparent 60%),
+    repeating-linear-gradient(-18deg, rgba(240, 253, 250, 0.12) 0 12px, transparent 12px 28px);
+  opacity: 0.45;
 }
 .feature-card--exchange::before {
-  background-image: url("../../assets/landing/exchange-bg.png");
-  opacity: 0.2;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.22), transparent 22%),
+    radial-gradient(circle at 80% 78%, rgba(96, 165, 250, 0.22), transparent 24%),
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), transparent 62%),
+    repeating-linear-gradient(135deg, rgba(191, 219, 254, 0.14) 0 12px, transparent 12px 34px);
+  opacity: 0.4;
 }
 
 .feature-card h3 {
